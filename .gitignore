@@ -1,0 +1,6 @@
+node/
+.idea/
+server.log
+.env
+monaco-editor-repo/
+.vercel

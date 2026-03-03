@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Open Web IDE</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #1e1e1e;
+      color: #e6e6e6;
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+    .card {
+      width: min(92vw, 560px);
+      border: 1px solid #3c3c3c;
+      border-radius: 10px;
+      background: #252526;
+      padding: 20px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
+    }
+    h1 { margin: 0 0 8px; font-size: 1.15rem; }
+    p { margin: 0 0 14px; color: #b7bec8; line-height: 1.45; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; }
+    button, a {
+      border: 1px solid #3c3c3c;
+      background: #2d2d2d;
+      color: #e6e6e6;
+      border-radius: 8px;
+      padding: 10px 14px;
+      text-decoration: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    button:hover, a:hover { border-color: #4ea1ff; }
+    .small { margin-top: 12px; font-size: 0.8rem; color: #8f97a2; }
+    code { background: #1b1b1c; border: 1px solid #333; padding: 1px 5px; border-radius: 5px; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Open Coding IDE</h1>
+    <p>This launcher is Chromebook-safe. Students only click once, no terminal setup.</p>
+    <div class="row">
+      <button id="openNow">Open IDE</button>
+      <a id="hostedLink" href="https://coding-intro-proper-advith.vercel.app/" target="_blank" rel="noopener noreferrer">Open Hosted URL</a>
+    </div>
+    <p class="small">
+      Set your real deployed link inside this file by replacing <code>https://coding-intro-proper-advith.vercel.app/</code>.
+      If this file is opened on the same hosted site, it auto-opens <code>/index.html</code>.
+    </p>
+  </main>
+
+  <script>
+    const HOSTED_URL = 'https://coding-intro-proper-advith.vercel.app/';
+    const openNow = document.getElementById('openNow');
+    const hostedLink = document.getElementById('hostedLink');
+    hostedLink.href = HOSTED_URL;
+
+    function openIde() {
+      const isHttp = location.protocol === 'http:' || location.protocol === 'https:';
+      if (isHttp) {
+        window.location.href = './index.html';
+        return;
+      }
+      window.location.href = HOSTED_URL;
+    }
+
+    openNow.addEventListener('click', openIde);
+    setTimeout(openIde, 700);
+  </script>
+</body>
+</html>

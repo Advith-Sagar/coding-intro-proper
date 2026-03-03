@@ -1,0 +1,11 @@
+{
+  "name": "coding-intro-browser-ide",
+  "version": "2.0.0",
+  "description": "ChromeOS-safe browser-based multi-language IDE",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "stop": "lsof -ti :3000 | xargs kill -9 2>/dev/null || true"
+  },
+  "dependencies": {}
+}
