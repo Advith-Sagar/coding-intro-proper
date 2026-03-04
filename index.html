@@ -9,23 +9,51 @@
 <body>
   <div class="app">
     <aside class="sidebar">
-      <h1>Project Explorer</h1>
+      <div class="sidebar-header">
+        <h1>Project Explorer</h1>
+        <button id="swapSidebarView" type="button" title="Switch between Explorer and Lessons">Show Lessons</button>
+      </div>
       <p>Folders and files are saved in your browser.</p>
-      <div class="jdoodle-settings">
-        <h2>JDoodle API</h2>
-        <input id="jdoodleClientId" type="text" placeholder="Client ID" autocomplete="off" />
-        <input id="jdoodleClientSecret" type="password" placeholder="Client Secret" autocomplete="off" />
-        <button id="saveJdoodleButton" title="Save JDoodle credentials">Save API Keys</button>
-      </div>
-      <div class="explorer-actions">
-        <button id="newFolderButton" title="Add Folder">+ Folder</button>
-        <button id="newTextButton" title="Add Text/Markdown File">+ Text</button>
-        <button id="newCodeButton" title="Add Code File">+ Code</button>
-      </div>
-      <div id="explorerTree" class="explorer-tree" aria-label="File Explorer"></div>
-      <div class="explorer-footer">
-        <span id="activeFileLabel">No file open</span>
-      </div>
+
+      <section id="sidebarExplorerView" class="sidebar-view">
+        <div class="jdoodle-settings">
+          <h2>JDoodle API</h2>
+          <input id="jdoodleClientId" type="text" placeholder="Client ID" autocomplete="off" />
+          <input id="jdoodleClientSecret" type="password" placeholder="Client Secret" autocomplete="off" />
+          <button id="saveJdoodleButton" title="Save JDoodle credentials">Save API Keys</button>
+        </div>
+        <div class="jdoodle-settings">
+          <h2>OpenAI Hint API</h2>
+          <input id="openaiApiKey" type="password" placeholder="OpenAI API Key" autocomplete="off" />
+          <input id="openaiModel" type="text" placeholder="Model (default: gpt-4.1)" autocomplete="off" />
+          <button id="saveOpenaiButton" title="Save OpenAI settings">Save OpenAI</button>
+        </div>
+        <div class="explorer-actions">
+          <button id="newFolderButton" title="Add Folder">+ Folder</button>
+          <button id="newTextButton" title="Add Text/Markdown File">+ Text</button>
+          <button id="newCodeButton" title="Add Code File">+ Code</button>
+        </div>
+        <div id="explorerTree" class="explorer-tree" aria-label="File Explorer"></div>
+        <div class="explorer-footer">
+          <span id="activeFileLabel">No file open</span>
+        </div>
+      </section>
+
+      <section id="sidebarLessonView" class="sidebar-view hidden">
+        <div class="lesson-panel">
+          <h2>Lesson: Move Player (IDE Check)</h2>
+          <p id="lessonStepLabel">Step 1 of 4</p>
+          <p id="lessonPrompt">Click "Load Starter", then complete the task in the IDE editor.</p>
+          <code id="lessonExpected"></code>
+          <div class="lesson-actions">
+            <button id="lessonLoadButton" type="button">Load Starter</button>
+            <button id="lessonCheckButton" type="button">Check IDE Code</button>
+            <button id="lessonHintButton" type="button">Get AI Hint</button>
+            <button id="lessonContinueButton" type="button" disabled>Continue</button>
+          </div>
+          <p id="lessonMessage">Continue is locked until your IDE code matches expected text.</p>
+        </div>
+      </section>
     </aside>
     <div id="sidebarSplitter" class="splitter vertical" aria-label="Resize Sidebar" title="Drag to resize sidebar"></div>
 

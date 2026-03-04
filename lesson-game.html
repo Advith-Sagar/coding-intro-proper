@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mini Game Lesson</title>
+  <style>
+    body{margin:0;font-family:Arial,sans-serif;background:#0f172a;color:#e2e8f0;display:grid;place-items:center;min-height:100vh}
+    .card{width:min(92vw,680px);background:#111827;border:1px solid #334155;border-radius:12px;padding:16px}
+    h1{margin:0 0 6px;font-size:1.15rem}.sub{margin:0 0 12px;color:#94a3b8}
+    .step{display:none}.step.active{display:block}
+    .row{display:flex;gap:8px;flex-wrap:wrap}input{padding:8px;border-radius:8px;border:1px solid #334155;background:#0b1220;color:#e2e8f0;min-width:220px}
+    button{padding:8px 10px;border:1px solid #334155;border-radius:8px;background:#1e293b;color:#e2e8f0;cursor:pointer}
+    button:disabled{opacity:.45;cursor:not-allowed}.msg{min-height:20px;margin:8px 0 10px;color:#93c5fd}
+    #gameWrap{display:none;margin-top:12px}.note{margin:8px 0;color:#cbd5e1}
+    #game{width:420px;max-width:100%;height:250px;border:2px solid #475569;border-radius:10px;position:relative;overflow:hidden;background:#1f2937}
+    #player{width:28px;height:28px;background:#22c55e;border-radius:6px;position:absolute;left:0;top:0}
+    code{background:#0b1220;padding:2px 5px;border-radius:6px}
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Build a Tiny Movement Game</h1>
+    <p class="sub">Pass each check to unlock Continue, then play with WASD.</p>
+    <section id="lesson">
+      <div class="step active" data-step="1"><p>Step 1 (HTML): type <code>div</code></p><div class="row"><input id="a1" /><button data-check="1">Check</button><button data-next="1" disabled>Continue</button></div><p class="msg" id="m1"></p></div>
+      <div class="step" data-step="2"><p>Step 2 (CSS): type <code>background</code></p><div class="row"><input id="a2" /><button data-check="2">Check</button><button data-next="2" disabled>Continue</button></div><p class="msg" id="m2"></p></div>
+      <div class="step" data-step="3"><p>Step 3 (JS var): type <code>let x = 0</code></p><div class="row"><input id="a3" /><button data-check="3">Check</button><button data-next="3" disabled>Continue</button></div><p class="msg" id="m3"></p></div>
+      <div class="step" data-step="4"><p>Step 4 (JS if): type <code>if (key === 'w')</code></p><div class="row"><input id="a4" /><button data-check="4">Check</button><button data-next="4" disabled>Continue</button></div><p class="msg" id="m4"></p></div>
+    </section>
+    <section id="gameWrap"><p class="note">Nice. Use W A S D to move. Stay inside the box.</p><div id="game"><div id="player"></div></div></section>
+  </main>
+  <script>
+    const steps=[...document.querySelectorAll('.step')],ans={1:{v:'div',t:'word'},2:{v:'background',t:'word'},3:{v:'let x = 0',t:'code'},4:{v:"if (key === 'w')",t:'code'}};
+    let currentStep=1;
+    const normWord=s=>s.trim().toLowerCase().replace(/\s+/g,' ');
+    const normCode=s=>s.trim().replace(/\s+/g,' ').replace(/\s*([=()'])\s*/g,'$1');
+    const norm=(s,t)=>t==='word'?normWord(s):normCode(s);
+    function show(step){steps.forEach(el=>el.classList.toggle('active',Number(el.dataset.step)===step));currentStep=step;}
+    document.querySelectorAll('[data-check]').forEach(btn=>btn.onclick=()=>{
+      const n=btn.dataset.check,a=document.getElementById('a'+n).value,m=document.getElementById('m'+n),ok=norm(a,ans[n].t)===norm(ans[n].v,ans[n].t);
+      m.textContent=ok?'Correct. Continue unlocked.':'Try again. Check spacing/symbols.';if(ok)document.querySelector(`[data-next="${n}"]`).disabled=false;
+    });
+    document.querySelectorAll('[data-next]').forEach(btn=>btn.onclick=()=>{
+      const n=Number(btn.dataset.next);if(btn.disabled||n!==currentStep)return;
+      if(n<4)show(n+1);else document.getElementById('gameWrap').style.display='block';
+    });
+    const game=document.getElementById('game'),playerEl=document.getElementById('player'),keys={w:false,a:false,s:false,d:false},player={x:0,y:0,size:28,speed:3};
+    addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(keys[k]!==undefined)keys[k]=true;});
+    addEventListener('keyup',e=>{const k=e.key.toLowerCase();if(keys[k]!==undefined)keys[k]=false;});
+    function loop(){
+      if(keys.w)player.y-=player.speed;if(keys.s)player.y+=player.speed;if(keys.a)player.x-=player.speed;if(keys.d)player.x+=player.speed;
+      const maxX=game.clientWidth-player.size,maxY=game.clientHeight-player.size;
+      player.x=Math.max(0,Math.min(maxX,player.x));player.y=Math.max(0,Math.min(maxY,player.y));
+      playerEl.style.left=player.x+'px';playerEl.style.top=player.y+'px';requestAnimationFrame(loop);
+    }
+    loop();
+  </script>
+</body>
+</html>

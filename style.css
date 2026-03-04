@@ -39,11 +39,22 @@ body {
   padding: 16px;
 }
 
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 .sidebar h1 {
   margin: 0 0 6px;
   color: #d4d4d4;
   font-size: 1.1rem;
   letter-spacing: 0.2px;
+}
+
+.sidebar-view.hidden {
+  display: none;
 }
 
 .sidebar p {
@@ -537,6 +548,58 @@ body.strong-focus-ui select:focus {
   border-top: 1px solid var(--border);
   color: #9aa0a6;
   font-size: 0.78rem;
+}
+
+.lesson-panel {
+  margin-top: 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #191919;
+  padding: 10px;
+  display: grid;
+  gap: 8px;
+}
+
+.lesson-panel h2 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #d4d9e2;
+}
+
+.lesson-panel p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #9ea5b1;
+}
+
+.lesson-panel a {
+  color: #8ec8ff;
+  font-size: 0.8rem;
+}
+
+.lesson-panel code {
+  display: block;
+  background: #0d1524;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 7px 8px;
+  color: #dbeafe;
+  font-size: 0.78rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.lesson-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+
+#lessonMessage {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #9fb9d9;
+  line-height: 1.35;
 }
 
 .explorer-context-menu {

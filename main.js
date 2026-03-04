@@ -11,6 +11,8 @@ const PANEL_VISIBILITY_KEY = 'ide_panel_visibility_v1';
 const SETTINGS_KEY = 'ide_settings_v2';
 const JDOODLE_CLIENT_ID_KEY = 'jdoodle_client_id';
 const JDOODLE_CLIENT_SECRET_KEY = 'jdoodle_client_secret';
+const OPENAI_API_KEY_STORAGE_KEY = 'openai_api_key';
+const OPENAI_MODEL_STORAGE_KEY = 'openai_model';
 
 const HEX_COLOR_REGEX = /#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\b/g;
 
@@ -172,12 +174,26 @@ const languageDropdownMenu = document.getElementById('languageDropdownMenu');
 const jdoodleClientIdInput = document.getElementById('jdoodleClientId');
 const jdoodleClientSecretInput = document.getElementById('jdoodleClientSecret');
 const saveJdoodleButton = document.getElementById('saveJdoodleButton');
+const openaiApiKeyInput = document.getElementById('openaiApiKey');
+const openaiModelInput = document.getElementById('openaiModel');
+const saveOpenaiButton = document.getElementById('saveOpenaiButton');
 
 const newFolderButton = document.getElementById('newFolderButton');
 const newTextButton = document.getElementById('newTextButton');
 const newCodeButton = document.getElementById('newCodeButton');
 const explorerTree = document.getElementById('explorerTree');
 const activeFileLabel = document.getElementById('activeFileLabel');
+const swapSidebarViewButton = document.getElementById('swapSidebarView');
+const sidebarExplorerView = document.getElementById('sidebarExplorerView');
+const sidebarLessonView = document.getElementById('sidebarLessonView');
+const lessonStepLabel = document.getElementById('lessonStepLabel');
+const lessonPrompt = document.getElementById('lessonPrompt');
+const lessonExpected = document.getElementById('lessonExpected');
+const lessonMessage = document.getElementById('lessonMessage');
+const lessonLoadButton = document.getElementById('lessonLoadButton');
+const lessonCheckButton = document.getElementById('lessonCheckButton');
+const lessonHintButton = document.getElementById('lessonHintButton');
+const lessonContinueButton = document.getElementById('lessonContinueButton');
 
 const mainEl = document.querySelector('.main');
 const toolbarEl = document.querySelector('.toolbar');
@@ -215,6 +231,54 @@ let terminalCwdNodeId = 'root';
 let panelVisibility = { output: true, debug: true, terminal: true };
 let settingsState = {};
 let activeSettingsCategory = 'Editor';
+let sidebarView = 'explorer';
+let lessonStepIndex = 0;
+let lessonLoaded = false;
+let lessonSource = 'default';
+
+const LESSON_TEMPLATE = `<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>WASD Lesson Game</title>
+  <style>
+    body { margin: 0; background: #0f172a; color: #e2e8f0; font-family: Arial, sans-serif; display: grid; place-items: center; min-height: 100vh; }
+    #game { width: 420px; height: 250px; border: 2px solid #64748b; border-radius: 10px; position: relative; overflow: hidden; }
+    #player { width: 28px; height: 28px; position: absolute; left: 0; top: 0; /* STEP 2: add background: #22c55e; */ }
+  </style>
+</head>
+<body>
+  <div id="game">
+    <!-- STEP 1: add <div id="player"></div> -->
+  </div>
+  <script>
+    const game = document.getElementById('game');
+    const player = document.getElementById('player');
+    // STEP 3: add let x = 0;
+    let y = 0;
+    addEventListener('keydown', (e) => {
+      const key = e.key.toLowerCase();
+      // STEP 4: add if (key === 'w') y -= 10;
+      if (key === 's') y += 10;
+      if (key === 'a') x -= 10;
+      if (key === 'd') x += 10;
+      if (!player) return;
+      x = Math.max(0, Math.min(game.clientWidth - 28, x));
+      y = Math.max(0, Math.min(game.clientHeight - 28, y));
+      player.style.left = x + 'px';
+      player.style.top = y + 'px';
+    });
+  </script>
+</body>
+</html>`;
+
+const DEFAULT_LESSON_STEPS = [
+  { prompt: 'Step 1: In the HTML game box, add the player element.', expected: '<div id="player"></div>' },
+  { prompt: 'Step 2: In #player CSS, add a background color.', expected: 'background: #22c55e;' },
+  { prompt: 'Step 3: In JS, create the x position variable.', expected: 'let x = 0;' },
+  { prompt: "Step 4: Add W key movement in JS.", expected: "if (key === 'w') y -= 10;" }
+];
+let lessonSteps = [...DEFAULT_LESSON_STEPS];
 
 function pxVar(name, fallback) {
   const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -232,6 +296,194 @@ function clamp(value, min, max) {
 
 function setStatus(text) {
   statusEl.textContent = text;
+}
+
+function setSidebarView(view) {
+  sidebarView = view === 'lesson' ? 'lesson' : 'explorer';
+  const lessonOpen = sidebarView === 'lesson';
+  sidebarExplorerView?.classList.toggle('hidden', lessonOpen);
+  sidebarLessonView?.classList.toggle('hidden', !lessonOpen);
+  if (swapSidebarViewButton) swapSidebarViewButton.textContent = lessonOpen ? 'Show Explorer' : 'Show Lessons';
+  if (lessonOpen) closeExplorerMenu();
+}
+
+function normalizeSnippet(value) {
+  return String(value || '').toLowerCase().replace(/\s+/g, ' ').trim();
+}
+
+function parsePipeSeparatedLessons(text) {
+  const lines = String(text || '')
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith('#'));
+  const parsed = [];
+  for (const line of lines) {
+    const parts = line.split('|').map((p) => p.trim());
+    if (parts.length < 3) continue;
+    const prompt = parts[1];
+    const expected = parts[2].replace(/\\\|/g, '|');
+    const hint = parts[3] || '';
+    parsed.push({ prompt, expected, hint });
+  }
+  return parsed;
+}
+
+function parseScriptStepsLessons(text) {
+  const match = String(text || '').match(/const\s+steps\s*=\s*(\[[\s\S]*?\n\]);?/);
+  if (!match) return [];
+  try {
+    const parsed = Function(`"use strict"; return (${match[1]});`)();
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter((step) => step && (typeof step.prompt === 'string' || typeof step.instructions === 'string'))
+      .map((step) => ({
+        prompt: step.prompt || step.instructions || '',
+        expected: typeof step.expected === 'string' ? step.expected : '',
+        hint: typeof step.hint === 'string' ? step.hint : '',
+        check: typeof step.check === 'function' ? step.check : null
+      }));
+  } catch {
+    return [];
+  }
+}
+
+async function loadLessonsFromFile() {
+  try {
+    const res = await fetch('./Lessons.txt', { cache: 'no-store' });
+    if (!res.ok) return;
+    const text = await res.text();
+    if (!text.trim()) return;
+    const scriptParsed = parseScriptStepsLessons(text);
+    if (scriptParsed.length > 0) {
+      lessonSteps = scriptParsed;
+      lessonStepIndex = 0;
+      lessonSource = 'file';
+      return;
+    }
+    const pipeParsed = parsePipeSeparatedLessons(text);
+    if (pipeParsed.length > 0) {
+      lessonSteps = pipeParsed;
+      lessonStepIndex = 0;
+      lessonSource = 'file';
+    }
+  } catch {
+    // Keep defaults when Lessons.txt is unavailable or invalid.
+  }
+}
+
+function renderLessonStep() {
+  const step = lessonSteps[lessonStepIndex];
+  if (!step) {
+    lessonStepLabel.textContent = 'Lesson complete';
+    lessonPrompt.textContent = 'Done. Click Run Code in the IDE to test movement.';
+    lessonExpected.textContent = 'Expected: all lesson checks passed.';
+    lessonContinueButton.disabled = true;
+    return;
+  }
+  lessonStepLabel.textContent = `Step ${lessonStepIndex + 1} of ${lessonSteps.length}`;
+  lessonPrompt.innerHTML = step.prompt;
+  lessonExpected.textContent = step.expected ? `Expected snippet: ${step.expected}` : 'Expected: follow instruction and pass check.';
+  lessonContinueButton.disabled = true;
+}
+
+function loadLessonStarterIntoEditor() {
+  if (!editor) return;
+  languageSelect.value = 'html';
+  languageSelect.dispatchEvent(new Event('change'));
+  const starter = lessonSource === 'file'
+    ? ''
+    : LESSON_TEMPLATE;
+  editor.setValue(starter);
+  lessonLoaded = true;
+  lessonStepIndex = 0;
+  lessonMessage.textContent = lessonSource === 'file'
+    ? 'Blank starter loaded. Begin from scratch and complete Step 1.'
+    : 'Starter loaded into IDE editor. Complete Step 1 and click Check.';
+  renderLessonStep();
+}
+
+function checkLessonStepInEditor() {
+  if (!editor || !lessonLoaded) {
+    lessonMessage.textContent = 'Load the starter first.';
+    return;
+  }
+  const step = lessonSteps[lessonStepIndex];
+  if (!step) return;
+  const code = editor.getValue();
+  const ok = typeof step.check === 'function'
+    ? !!step.check(code)
+    : normalizeSnippet(code).includes(normalizeSnippet(step.expected));
+  const hint = step.hint ? ` Hint: ${step.hint}` : '';
+  lessonMessage.textContent = ok
+    ? 'Correct. Continue unlocked.'
+    : `Not yet. Update code in the IDE editor and try again.${hint}`;
+  lessonContinueButton.disabled = !ok;
+}
+
+function continueLessonStep() {
+  if (lessonContinueButton.disabled) return;
+  lessonStepIndex += 1;
+  if (lessonStepIndex >= lessonSteps.length) {
+    lessonStepIndex = lessonSteps.length;
+    renderLessonStep();
+    lessonMessage.textContent = 'All checks passed. Run code in the IDE to test WASD movement.';
+    setStatus('Lesson complete');
+    return;
+  }
+  renderLessonStep();
+  lessonMessage.textContent = 'Next step ready. Edit code in IDE and click Check.';
+}
+
+async function requestLessonHintFromAI() {
+  if (!editor || !lessonLoaded) {
+    lessonMessage.textContent = 'Load the starter first.';
+    return;
+  }
+  const step = lessonSteps[lessonStepIndex];
+  if (!step) return;
+
+  lessonHintButton.disabled = true;
+  lessonMessage.textContent = 'Getting AI hint...';
+
+  try {
+    const creds = currentOpenaiCredentials();
+    if (!creds.apiKey) {
+      lessonMessage.textContent = 'Enter OpenAI API Key in sidebar (Explorer view) first.';
+      return;
+    }
+
+    const res = await fetch('/api/check-code', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-openai-key': creds.apiKey,
+        'x-openai-model': creds.model
+      },
+      body: JSON.stringify({
+        step: lessonStepIndex + 1,
+        stepPrompt: step.prompt || '',
+        expected: step.expected || '',
+        studentCode: editor.getValue(),
+        clientApiKey: creds.apiKey,
+        clientModel: creds.model
+      })
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || `AI hint request failed (${res.status})`);
+
+    const msg = data.message ? `AI: ${data.message}` : 'AI: I checked your code.';
+    const hint = data.hint ? ` Hint: ${data.hint}` : '';
+    lessonMessage.textContent = `${msg}${hint}`;
+    if (data.correct === true) {
+      lessonContinueButton.disabled = false;
+      lessonMessage.textContent += ' Continue unlocked.';
+    }
+  } catch (err) {
+    lessonMessage.textContent = err.message || 'AI hint request failed.';
+  } finally {
+    lessonHintButton.disabled = false;
+  }
 }
 
 function setOutput(text, isError = false) {
@@ -725,6 +977,30 @@ function saveJdoodleCredentials() {
   }
   localStorage.setItem(JDOODLE_CLIENT_ID_KEY, clientId);
   localStorage.setItem(JDOODLE_CLIENT_SECRET_KEY, clientSecret);
+}
+
+function loadOpenaiCredentials() {
+  if (openaiApiKeyInput) openaiApiKeyInput.value = localStorage.getItem(OPENAI_API_KEY_STORAGE_KEY) || '';
+  if (openaiModelInput) openaiModelInput.value = localStorage.getItem(OPENAI_MODEL_STORAGE_KEY) || 'gpt-4.1';
+}
+
+function saveOpenaiCredentials() {
+  const apiKey = openaiApiKeyInput?.value.trim() || '';
+  const model = openaiModelInput?.value.trim() || 'gpt-4.1';
+  if (!apiKey) throw new Error('Enter OpenAI API Key.');
+  localStorage.setItem(OPENAI_API_KEY_STORAGE_KEY, apiKey);
+  localStorage.setItem(OPENAI_MODEL_STORAGE_KEY, model);
+}
+
+function currentOpenaiCredentials() {
+  const inputKey = openaiApiKeyInput?.value.trim() || '';
+  const inputModel = openaiModelInput?.value.trim() || '';
+  const storedKey = (localStorage.getItem(OPENAI_API_KEY_STORAGE_KEY) || '').trim();
+  const storedModel = (localStorage.getItem(OPENAI_MODEL_STORAGE_KEY) || '').trim();
+  return {
+    apiKey: inputKey || storedKey,
+    model: inputModel || storedModel || 'gpt-4.1'
+  };
 }
 
 function queueProjectSave() {
@@ -1853,6 +2129,17 @@ applySettings();
 loadPanelVisibility();
 populateJdoodleLanguages();
 loadJdoodleCredentials();
+loadOpenaiCredentials();
+setSidebarView('explorer');
+loadLessonsFromFile().finally(renderLessonStep);
+
+swapSidebarViewButton?.addEventListener('click', () => {
+  setSidebarView(sidebarView === 'explorer' ? 'lesson' : 'explorer');
+});
+lessonLoadButton?.addEventListener('click', loadLessonStarterIntoEditor);
+lessonCheckButton?.addEventListener('click', checkLessonStepInEditor);
+lessonHintButton?.addEventListener('click', requestLessonHintFromAI);
+lessonContinueButton?.addEventListener('click', continueLessonStep);
 
 settingsButton?.addEventListener('click', openSettings);
 closeSettingsButton?.addEventListener('click', closeSettings);
@@ -1875,6 +2162,17 @@ saveJdoodleButton.addEventListener('click', () => {
     setStatus('JDoodle keys saved');
   } catch (err) {
     setStatus('JDoodle keys missing');
+    setOutput(err.message || String(err), true);
+  }
+});
+
+saveOpenaiButton?.addEventListener('click', () => {
+  try {
+    saveOpenaiCredentials();
+    setStatus('OpenAI key saved');
+    lessonMessage.textContent = 'OpenAI settings saved in this browser.';
+  } catch (err) {
+    setStatus('OpenAI key missing');
     setOutput(err.message || String(err), true);
   }
 });

@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>WASD Lesson Game — 60 Steps</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #0f172a; color: #e2e8f0; font-family: Arial, sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 16px; }
+  h1 { font-size: 20px; margin: 10px 0 6px; }
+  #progress-bar-wrap { width: 700px; max-width: 100%; background: #1e293b; border-radius: 99px; height: 8px; margin-bottom: 10px; }
+  #progress-bar { height: 8px; background: #3b82f6; border-radius: 99px; transition: width 0.3s; width: 0%; }
+  #tabs { display: flex; flex-wrap: wrap; gap: 3px; max-width: 760px; margin-bottom: 10px; }
+  .tab { padding: 4px 8px; background: #1e293b; cursor: pointer; border-radius: 4px; font-size: 11px; color: #64748b; border: 1px solid transparent; }
+  .tab.active { background: #3b82f6; color: white; }
+  .tab.done { border-color: #22c55e; color: #22c55e; }
+  .tab.active.done { background: #22c55e; color: white; }
+  #section-label { font-size: 12px; color: #94a3b8; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; align-self: flex-start; max-width: 760px; width: 100%; }
+  #main { display: flex; gap: 14px; max-width: 1160px; width: 100%; }
+  #left { width: 360px; flex-shrink: 0; display: flex; flex-direction: column; gap: 8px; }
+  #step-number { font-size: 12px; color: #64748b; }
+  #step-instructions { background: #1e293b; border-radius: 10px; padding: 14px; line-height: 1.85; font-size: 13.5px; min-height: 260px; }
+  #step-instructions code { background: #0f172a; color: #38bdf8; padding: 1px 5px; border-radius: 4px; font-family: monospace; font-size: 13px; }
+  #step-instructions pre { background: #0f172a; color: #a3e635; padding: 10px 12px; border-radius: 7px; font-family: monospace; font-size: 12.5px; line-height: 1.65; white-space: pre-wrap; margin: 8px 0; }
+  #btn-row { display: flex; gap: 8px; }
+  #check-btn { background: #3b82f6; color: white; border: none; padding: 9px 18px; border-radius: 6px; font-size: 14px; cursor: pointer; flex: 1; }
+  #check-btn:hover { background: #2563eb; }
+  #next-btn { background: #1e293b; color: #94a3b8; border: none; padding: 9px 14px; border-radius: 6px; font-size: 14px; cursor: pointer; }
+  #next-btn:hover { background: #334155; color: white; }
+  #check-result { font-size: 14px; font-weight: bold; min-height: 20px; }
+  #right { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+  #right label { font-size: 12px; color: #64748b; }
+  #step-code { width: 100%; flex: 1; min-height: 560px; background: #1e293b; color: #e2e8f0; font-family: monospace; font-size: 13px; border: 1px solid #334155; border-radius: 8px; padding: 14px; resize: vertical; line-height: 1.65; }
+  #step-code:focus { outline: none; border-color: #3b82f6; }
+</style>
+</head>
+<body>
+<h1>🎮 WASD Lesson Game — 60 Steps</h1>
+<div id="progress-bar-wrap"><div id="progress-bar"></div></div>
+<div id="tabs"></div>
+<div id="section-label" id="section-label"></div>
+<div id="main">
+  <div id="left">
+    <div id="step-number"></div>
+    <div id="step-instructions"></div>
+    <div id="btn-row">
+      <button id="check-btn" onclick="checkStep()">Check Step ✅</button>
+      <button id="next-btn" onclick="nextStep()">Next →</button>
+    </div>
+    <div id="check-result"></div>
+  </div>
+  <div id="right">
+    <label>📝 Your code lives here — keep adding to it, never erase what you have!</label>
+    <textarea id="step-code" spellcheck="false" placeholder="Start typing here on Step 1..."></textarea>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+//  SECTION 1 — Making the square (HTML + CSS)
+// ─────────────────────────────────────────────
+
+const steps = [
+
+{
+  section: "Section 1 — Making the square",
+  instructions: `<b>Step 1 — Type the DOCTYPE</b><br><br>The very first line of every webpage is a special announcement that tells the browser what kind of file this is. Without it, some browsers get confused and display things in a strange old-fashioned way. Type this exact line in the editor on the right — it will be the very first thing in your file: <pre>&lt;!doctype html&gt;</pre>Notice it is all lowercase and has no closing tag — it is a one-time announcement, not a real tag. Every single webpage in the whole world starts with this same line! Go ahead and type it now, then click Check Step.`,
+  check: c => /<!doctype html>/i.test(c)
+},
+
+{
+  section: "Section 1 — Making the square",
+  instructions: `<b>Step 2 — Open the &lt;html&gt; tag</b><br><br>The html tag is the outer wrapper for the entire page — every other element goes inside it. Think of it like the cover of a book that holds all the pages together. Type <code>&lt;html&gt;</code> on the next line right below your DOCTYPE. This tag has an opening version and a closing version — we will add the closing <code>&lt;/html&gt;</code> at the very last step of this lesson. Do not delete anything you have already typed — just keep adding new lines below. Type it now and click Check Step!`,
+  check: c => /<!doctype html>/i.test(c) && /<html>/i.test(c)
+},
+
+{
+  section: "Section 1 — Making the square",
+  instructions: `<b>Step 3 — Open the &lt;head&gt; tag</b><br><br>The head section is a hidden area where we put information about the page — visitors cannot see it, but the browser reads it carefully. Things like the page title, character settings, and styles all go in here. Type <code>&lt;head&gt;</code> on the next line, inside your html tag. Nothing inside head shows up as visible content on the screen. We will close it with <code>&lt;/head&gt;</code> a little later — for now just open it. Type it now and click Check Step!`,
+  check: c => /<head>/i.test(c)
+},
+
+{
+  section: "Section 1 — Making the square",
+  instructions: `<b>Step 4 — Add the charset meta tag</b><br><br>This tag tells the browser which alphabet and symbols to use when reading your file. UTF-8 means it can handle English letters, numbers, emoji, and almost every character in the world. Type this inside your head tag: <pre>&lt;meta charset="UTF-8" /&gt;</pre>The <code>/</code> before the last <code>&gt;</code> means this tag closes itself — you do not need a separate closing tag for it. Without this line, special characters might show up as strange symbols on the page. Type it and click Check Step!`,
+  check: c => /charset="UTF-8"/i.test(c)
+},
+
+{
+  section: "Section 1 — Making the square",
+  instructions: `<b>Step 5 — Add the page title</b><br><br>The title tag sets the text that appears in the tiny browser tab at the top of your window. It does not show up on the page itself — only in the tab and in bookmarks. Type this inside head, right after the meta tag: <pre>&lt;title&gt;WASD Lesson Game&lt;/title&gt;</pre>Notice we open with <code>&lt;title&gt;</code>, type the words, then close with <code>&lt;/title&gt;</code> — all on one line. When you open your finished file in a browser, the tab will say "WASD Lesson Game". Type it and click Check Step!`,
+  check: c => /<title>WASD Lesson Game<\/title>/i.test(c)
+},
+
+{
+  section: "Section 1 — Making the square",
+  instructions: `<b>Step 6 — Open the &lt;style&gt; tag</b><br><br>The style tag is where we write CSS — the code that controls how things look, like colors and sizes. CSS stands for Cascading Style Sheets and it is one of the three main languages of the web. Type <code>&lt;style&gt;</code> inside head, right after the title tag. Everything we type between <code>&lt;style&gt;</code> and <code>&lt;/style&gt;</code> will be CSS rules. We will close it later with <code>&lt;/style&gt;</code> once we have written all our styles. Type it now and click Check Step!`,
+  check: c => /<style>/i.test(c)
+},
+
+{
+  section: "Section 1 — Making the square",
+  instructions: `<b>Step 7 — Start the body CSS rule</b><br><br>A CSS rule starts with a selector — the name of what you want to style — followed by curly braces that hold the style instructions. The selector <code>body</code> targets the entire visible area of the page. Type <code>body {</code> on a new line inside your style tag — this opens the rule for the whole page background. We will fill in the style properties over the next several steps, one at a time. Leave a blank line after it for now — we will fill it in as we go. Type it and click Check Step!`,
+  check: c => /body\s*\{/.test(c)
+},
+
+{
+  section: "Section 1 — Making the square",
+  instructions: `<b>Step 8 — Add margin: 0</b><br><br>Margin is the space around the outside edge of an element — like the blank border around a poster on a wall. By default, browsers add a small gap of about 8 pixels around every page, which looks a bit messy. Type <code>margin: 0;</code> inside the body curly braces to remove that unwanted gap. Each CSS instruction is called a property, and it always ends with a semicolon <code>;</code>. Setting margin to zero means our game will fit perfectly against the edges of the screen. Type it inside the body rule and click Check Step!`,
+  check: c => /body\s*\{[^}]*margin:\s*0/.test(c)
+},
+
+{
+  section: "Section 1 — Making the square",
+  instructions: `<b>Step 9 — Add background: #0f172a</b><br><br>The background property sets the background color of the whole page — right now it is a plain white, which is not very exciting for a game! Colors in CSS can be written as hex codes — a <code>#</code> symbol followed by six numbers and letters. Type <code>background: #0f172a;</code> inside the body rule. The value <code>#0f172a</code> is a very dark navy blue that makes the page look sleek and modern. This will replace the boring white background with something that actually looks like a game screen! Type it and click Check Step!`,
+  check: c => /body\s*\{[^}]*background:\s*#0f172a/.test(c)
+},
+
+{
+  section: "Section 1 — Making the square",
+  instructions: `<b>Step 10 — Add color: #e2e8f0</b><br><br>The <code>color</code> property sets the default text color for the whole page — since we set it on body, all text automatically inherits this color. Type <code>color: #e2e8f0;</code> inside the body rule. The hex value <code>#e2e8f0</code> is a soft light blue-grey that is easy and comfortable to read on our dark background. This is like choosing the ink color of your pen before writing on dark paper. Any text on the page will look crisp and readable with this color. Type it and click Check Step!`,
+  check: c => /body\s*\{[^}]*color:\s*#e2e8f0/.test(c)
+},
+
+{
+  section: "Section 1 — Making the square",
+  instructions: `<b>Step 11 — Add font-family: Arial, sans-serif</b><br><br>The font-family property picks the style of letters that will be used for all text on the page. Type <code>font-family: Arial, sans-serif;</code> inside the body rule. Arial is a clean, simple font that is available on almost every computer in the world. The second value <code>sans-serif</code> is a fallback — if Arial is somehow not available, the browser will pick any similar clean font instead. Always listing a backup font is a good habit so your page always looks nice no matter what computer opens it. Type it and click Check Step!`,
+  check: c => /body\s*\{[^}]*font-family:\s*Arial/.test(c)
+},
+
+{
+  section: "Section 1 — Making the square",
+  instructions: `<b>Step 12 — Add display: grid</b><br><br>We are about to make our game box appear perfectly centered on the screen — and CSS Grid is the tool we will use! Type <code>display: grid;</code> inside the body rule. CSS Grid is a powerful layout mode that gives you fine control over how elements are positioned on a page. On its own this property does not look different yet — but the next two properties will use it to center everything perfectly. Think of this as flipping on a superpower switch that the next steps will activate. Type it and click Check Step!`,
+  check: c => /body\s*\{[^}]*display:\s*grid/.test(c)
+},
+
+{
+  section: "Section 1 — Making the square",
+  instructions: `<b>Step 13 — Add place-items: center</b><br><br>This is the magic centering trick that works together with <code>display: grid</code>! Type <code>place-items: center;</code> inside the body rule. This one property centers everything both left-right AND up-down at the same time — with just two words. Without it, the game box would sit in the boring top-left corner of the screen. It is one of the most useful CSS tricks in modern web design. Type it and click Check Step!`,
+  check: c => /body\s*\{[^}]*place-items:\s*center/.test(c)
+},
+
+{
+  section: "Section 1 — Making the square",
+  instructions: `<b>Step 14 — Add min-height: 100vh</b><br><br>For the centering to work, the page needs to be at least as tall as the visible screen area. Type <code>min-height: 100vh;</code> inside the body rule — the unit <code>vh</code> stands for "viewport height", so <code>100vh</code> means the full height of your screen. This stretches the body to fill the whole window so the game appears exactly in the middle. Without this line, the centering would not work because the page would be too short to center anything in. Now close the body rule by typing <code>}</code> on the next line after this property. Type both and click Check Step!`,
+  check: c => /body\s*\{[^}]*min-height:\s*100vh/.test(c)
+},
+
+{
+  section: "Section 1 — Making the square",
+  instructions: `<b>Step 15 — Start the #game CSS rule</b><br><br>Now we style the game box — the rectangle where the player will move around! In CSS, the <code>#</code> symbol means we are targeting an element by its unique id. Type <code>#game {</code> on a new line after the body rule closes. This rule will apply only to the element with <code>id="game"</code> that we will add to the HTML a little later. We will fill in its properties over the next several steps — for now just open the rule. Type it and click Check Step!`,
+  check: c => /#game\s*\{/.test(c)
+},
+
+{
+  section: "Section 1 — Making the square",
+  instructions: `<b>Step 16 — Add width: 420px</b><br><br>The width property sets how wide the game box will be on screen. Type <code>width: 420px;</code> inside the #game rule. The unit <code>px</code> stands for pixels — one pixel is one tiny dot on your screen. 420 pixels is a comfortable game width — big enough to move around freely but small enough to fit on most screens. Later, our JavaScript code will use this exact width to calculate where the player can and cannot go. Type it and click Check Step!`,
+  check: c => /#game\s*\{[^}]*width:\s*420px/.test(c)
+},
+
+{
+  section: "Section 1 — Making the square",
+  instructions: `<b>Step 17 — Add height: 250px</b><br><br>The height property sets how tall the game box is — we need both width and height to define the full play area. Type <code>height: 250px;</code> inside the #game rule. At 250 pixels tall and 420 wide, the box is wider than it is tall, giving it a landscape shape like a classic game screen. Together, <code>width: 420px</code> and <code>height: 250px</code> define the total area the player can move within. The JavaScript code will also use 250 to calculate the top and bottom boundaries. Type it and click Check Step!`,
+  check: c => /#game\s*\{[^}]*height:\s*250px/.test(c)
+},
+
+{
+  section: "Section 1 — Making the square",
+  instructions: `<b>Step 18 — Add the border</b><br><br>Without a border, the game box would be completely invisible because its background matches the dark page! The border property adds a visible outline around the outside of the element. Type <code>border: 2px solid #64748b;</code> inside the #game rule. This means: 2 pixels thick, a solid line (not dashed or dotted), and the color <code>#64748b</code> which is a medium grey-blue. Now players will be able to clearly see where the game area starts and ends. Type it and click Check Step!`,
+  check: c => /#game\s*\{[^}]*border:\s*2px solid #64748b/.test(c)
+},
+
+{
+  section: "Section 1 — Making the square",
+  instructions: `<b>Step 19 — Add border-radius: 10px</b><br><br>Right now the game box has sharp square corners — let us give them a gentle curve to look more modern! The border-radius property rounds the corners of an element. Type <code>border-radius: 10px;</code> inside the #game rule. A value of 10 pixels gives a subtle, friendly curve — not completely circular, just softly rounded. This small touch makes the game look much more polished and professional compared to harsh square corners. Type it and click Check Step!`,
+  check: c => /#game\s*\{[^}]*border-radius:\s*10px/.test(c)
+},
+
+{
+  section: "Section 1 — Making the square",
+  instructions: `<b>Step 20 — Add position: relative</b><br><br>This property is critically important for making the player movable inside the game box! Type <code>position: relative;</code> inside the #game rule. When a parent element has <code>position: relative</code>, it becomes an anchor point for absolutely-positioned children inside it. Later our player will use <code>position: absolute</code> to place itself exactly inside the game box. Without this on the game box, the player would position itself based on the whole page instead of staying neatly inside the box. Type it and click Check Step!`,
+  check: c => /#game\s*\{[^}]*position:\s*relative/.test(c)
+},
+
+{
+  section: "Section 1 — Making the square",
+  instructions: `<b>Step 21 — Add overflow: hidden and close #game</b><br><br>This property hides anything that goes outside the edges of the game box, acting as a safety wall. Type <code>overflow: hidden;</code> inside the #game rule. If the player ever gets close to the wall, any part that goes outside the box will be neatly clipped instead of floating over the rest of the page. It also makes the rounded corners from <code>border-radius</code> clip the content properly so nothing peeks out at the edges. Now close the #game rule by typing <code>}</code> on the next line. Type both and click Check Step!`,
+  check: c => /#game\s*\{[^}]*overflow:\s*hidden/.test(c)
+},
+
+{
+  section: "Section 1 — Making the square",
+  instructions: `<b>Step 22 — Start the #player CSS rule</b><br><br>Now we style the player — the little square that you will control with the keyboard! Type <code>#player {</code> on a new line after the #game rule closes. This rule will only apply to the element with <code>id="player"</code> which we will add to the HTML soon. Take a moment to look back at your CSS — you have already written two complete rules for body and #game, which is fantastic! We have a few important properties to add for the player. Type it and click Check Step!`,
+  check: c => /#player\s*\{/.test(c)
+},
+
+{
+  section: "Section 1 — Making the square",
+  instructions: `<b>Step 23 — Add width: 28px</b><br><br>We need to set the size of the player — and we will make it a perfect square with equal width and height. Type <code>width: 28px;</code> inside the #player rule. At 28 pixels wide, the player is small enough to fit comfortably inside the 420px game box with plenty of room to move around. This exact number 28 is very important — the JavaScript code we will write later uses it to calculate exactly where the player is allowed to stop at the walls. Type it and click Check Step!`,
+  check: c => /#player\s*\{[^}]*width:\s*28px/.test(c)
+},
+
+{
+  section: "Section 1 — Making the square",
+  instructions: `<b>Step 24 — Add height: 28px</b><br><br>Just like the width, we also need to set the height to make our player a proper square. Type <code>height: 28px;</code> inside the #player rule. Setting both width and height to 28px makes the player element a perfect equal-sided square. A square player is the classic look for simple browser games — simple and instantly recognizable. The JavaScript code will also use this 28px height to calculate the top and bottom boundaries when you press W and S. Type it and click Check Step!`,
+  check: c => /#player\s*\{[^}]*height:\s*28px/.test(c)
+},
+
+{
+  section: "Section 1 — Making the square",
+  instructions: `<b>Step 25 — Add position: absolute</b><br><br>This is the most important property for making the player movable — it is what makes the whole movement system work! Type <code>position: absolute;</code> inside the #player rule. Absolute positioning lets us place the player at any exact spot we choose using <code>left</code> and <code>top</code> values in pixels. It positions itself relative to the game box because we gave the game box <code>position: relative</code> back in Step 20. This parent-relative, child-absolute pair is one of the most important CSS patterns in all of web development. Type it and click Check Step!`,
+  check: c => /#player\s*\{[^}]*position:\s*absolute/.test(c)
+},
+
+{
+  section: "Section 1 — Making the square",
+  instructions: `<b>Step 26 — Add left: 0 and top: 0</b><br><br>Now we set where the player starts when the page first loads. Type <code>left: 0; top: 0;</code> inside the #player rule — you can write both on the same line. <code>left: 0</code> places the player at the left edge, and <code>top: 0</code> places it at the top edge — so the player starts in the top-left corner of the game box. Later, the JavaScript will update these values every time you press a WASD key. Type it and click Check Step!`,
+  check: c => /#player\s*\{[^}]*left:\s*0[^}]*top:\s*0/.test(c)
+},
+
+{
+  section: "Section 1 — Making the square",
+  instructions: `<b>Step 27 — Add the CSS comment</b><br><br>A CSS comment is a note inside your code that the browser completely ignores — it is just there for humans to read. Comments in CSS are written between <code>/*</code> and <code>*/</code> like this. Type this inside the #player rule: <pre>/* STEP 2: add background: #22c55e; */</pre>This comment is a hint for a future challenge — the player has no visible color yet, and the comment reminds you how to make it green later. For now the player will show as a small box with text inside it so you can still see and move it. Type it and click Check Step!`,
+  check: c => /\/\*[^*]*STEP 2[^*]*\*\//.test(c)
+},
+
+{
+  section: "Section 1 — Making the square",
+  instructions: `<b>Step 28 — Close the #player rule</b><br><br>We have added all the properties the player needs — time to close the #player CSS rule! Type <code>}</code> on a new line to close it. Every opening curly brace <code>{</code> in CSS must have a matching closing curly brace <code>}</code> — just like parentheses in math. You have now written three complete CSS rules: body, #game, and #player — that is all the styling our game needs! Double-check that all three rules are in your code before moving on. Type <code>}</code> and click Check Step!`,
+  check: c => /#player\s*\{[^}]*width:\s*28px[^}]*\}/.test(c)
+},
+
+{
+  section: "Section 1 — Making the square",
+  instructions: `<b>Step 29 — Close &lt;/style&gt; and &lt;/head&gt;</b><br><br>We are done writing CSS — now we close up the style tag and the entire head section. Type <code>&lt;/style&gt;</code> on the next line to end the CSS block. Then type <code>&lt;/head&gt;</code> on the line after that to close the head section. After these two closing tags, everything we write will be the actual visible content of the page. The browser will automatically use all those CSS rules you wrote to style the elements we are about to create. Type both closing tags and click Check Step!`,
+  check: c => /<\/style>/i.test(c) && /<\/head>/i.test(c)
+},
+
+{
+  section: "Section 1 — Making the square",
+  instructions: `<b>Step 30 — Open &lt;body&gt;</b><br><br>Now we open the body section — this is where everything visible on the page lives! Type <code>&lt;body&gt;</code> on the next line after <code>&lt;/head&gt;</code>. Everything between <code>&lt;body&gt;</code> and <code>&lt;/body&gt;</code> will be rendered on screen when someone opens the file in a browser. The CSS <code>body</code> rule you wrote earlier will automatically apply to this element — so the dark background and centered layout are already waiting. We will add the game box and player inside the body in the next steps. Type it and click Check Step!`,
+  check: c => /<body>/i.test(c)
+},
+
+{
+  section: "Section 1 — Making the square",
+  instructions: `<b>Step 31 — Add the game div</b><br><br>A <code>div</code> is a generic box element and is the most common building block in HTML. Type <code>&lt;div id="game"&gt;</code> on a new line inside body — the <code>id="game"</code> gives this box a unique name so CSS and JavaScript can find it. This is the game area where the player will live and move around. The <code>#game</code> CSS rule you wrote earlier will automatically style it with the right size, border, and rounded corners. We will put the player inside this div in the next step. Type it and click Check Step!`,
+  check: c => /<div id="game">/i.test(c)
+},
+
+{
+  section: "Section 1 — Making the square",
+  instructions: `<b>Step 32 — Add the player div</b><br><br>Now we add the player square inside the game box! Type this on the next line, indented inside the game div: <pre>    &lt;div id="player"&gt;background: #22c55e;&lt;/div&gt;</pre>There is some visible text inside the player div that says <code>background: #22c55e;</code> — this is on purpose! Since the player has no background color in CSS yet (it is only in a comment), the text makes the player visible so you can see and move it right away. In a future challenge you would move that text into the CSS as a real color. Type it and click Check Step!`,
+  check: c => /<div id="player">background: #22c55e;<\/div>/i.test(c)
+},
+
+{
+  section: "Section 1 — Making the square",
+  instructions: `<b>Step 33 — Close the game div</b><br><br>We added the player div inside the game div — now we need to close the game div with a closing tag. Type <code>&lt;/div&gt;</code> on the next line to close the <code>&lt;div id="game"&gt;</code> element. Forgetting to close a div is one of the most common mistakes beginners make in HTML — always check that every opening tag has a matching closing tag. The structure should be: game div opens, player div sits inside (self-contained), then game div closes. Good indentation makes this easy to see at a glance. Type it and click Check Step!`,
+  check: c => /<div id="game">[\s\S]*<\/div>/i.test(c)
+},
+
+// ─────────────────────────────────────────────────────
+//  SECTION 2 — Movement with WASD (JavaScript)
+// ─────────────────────────────────────────────────────
+
+{
+  section: "Section 2 — Movement with WASD",
+  instructions: `<b>Step 34 — Open the &lt;script&gt; tag</b><br><br>Now we start the JavaScript section — this is where the game actually comes to life and becomes interactive! Type <code>&lt;script&gt;</code> on a new line after the closing game div. Everything between <code>&lt;script&gt;</code> and <code>&lt;/script&gt;</code> will be read as JavaScript by the browser. We place the script at the end of the body so the browser creates all the HTML elements first — if the script ran before the HTML, it would try to find elements that do not exist yet and crash. Type it and click Check Step!`,
+  check: c => /<script>/i.test(c)
+},
+
+{
+  section: "Section 2 — Movement with WASD",
+  instructions: `<b>Step 35 — Get the game element</b><br><br>JavaScript needs to connect to our HTML elements before it can read or control them. Type this inside the script tag: <pre>    const game = document.getElementById('game');</pre><code>document.getElementById('game')</code> searches the whole page and returns the element whose id is <code>'game'</code>. We store it in a variable called <code>game</code> — the word <code>const</code> means this variable will always point to the same element and never change. Later we will use this <code>game</code> variable to read the width and height of the game box for calculating boundaries. Type it and click Check Step!`,
+  check: c => /const game = document\.getElementById\('game'\)/.test(c)
+},
+
+{
+  section: "Section 2 — Movement with WASD",
+  instructions: `<b>Step 36 — Get the player element</b><br><br>We also need a reference to the player element so we can move it around on screen! Type this on the next line: <pre>    const player = document.getElementById('player');</pre>Just like we grabbed the game box, we use <code>getElementById</code> to find the player div by its id and store it in a variable called <code>player</code>. Using <code>const</code> again means we will always work with this same player element. Every time we change <code>player.style.left</code> or <code>player.style.top</code> later, the player will instantly move on screen. Type it and click Check Step!`,
+  check: c => /const player = document\.getElementById\('player'\)/.test(c)
+},
+
+{
+  section: "Section 2 — Movement with WASD",
+  instructions: `<b>Step 37 — Declare the x variable</b><br><br>We need a variable to remember the player's horizontal (left and right) position at all times. Type <code>let x = 0;</code> on the next line. We use <code>let</code> instead of <code>const</code> because this number will change every single time the player moves left or right. Starting at <code>0</code> means the player begins at the left edge of the game box. In a web page, the x value increases as you move to the right — just like a number line going left to right. Type it and click Check Step!`,
+  check: c => /let x = 0/.test(c)
+},
+
+{
+  section: "Section 2 — Movement with WASD",
+  instructions: `<b>Step 38 — Declare the y variable</b><br><br>We also need a variable to remember the player's vertical (up and down) position. Type <code>let y = 0;</code> on the next line. Using <code>let</code> again because y will change whenever the player moves up or down. Starting at <code>0</code> places the player at the very top edge of the game box. Here is a tricky fact: in web pages, y increases as you go DOWN — this is the opposite of a math graph where y goes up! Type it and click Check Step!`,
+  check: c => /let y = 0/.test(c)
+},
+
+{
+  section: "Section 2 — Movement with WASD",
+  instructions: `<b>Step 39 — Open the keydown event listener</b><br><br>An event listener waits for something to happen and then runs a function automatically. Type this on the next line: <pre>    addEventListener('keydown', (e) =&gt; {</pre>The string <code>'keydown'</code> means "fire this code the instant a key is pressed down." The <code>(e) =&gt;</code> part is an arrow function — <code>e</code> is the event object that carries information like which key was pressed. Everything between the opening <code>{</code> and its matching <code>}</code> will run every single time any key is pressed. Type it carefully and click Check Step!`,
+  check: c => /addEventListener\('keydown',\s*\(e\)\s*=>\s*\{/.test(c)
+},
+
+{
+  section: "Section 2 — Movement with WASD",
+  instructions: `<b>Step 40 — Get the pressed key</b><br><br>Inside the event listener, the first thing we do is find out which key was pressed. Type this as the first line inside the listener: <pre>      const key = e.key.toLowerCase();</pre><code>e.key</code> gives us the key as a string — pressing W gives <code>"w"</code> or <code>"W"</code> depending on whether caps lock is on. Calling <code>.toLowerCase()</code> converts it to lowercase so we never have to worry about caps lock causing problems. We store the result in <code>key</code> so we can check it cleanly in the next lines. Type it and click Check Step!`,
+  check: c => /const key = e\.key\.toLowerCase\(\)/.test(c)
+},
+
+{
+  section: "Section 2 — Movement with WASD",
+  instructions: `<b>Step 41 — Move UP with W</b><br><br>Time to write the actual movement code! Type this on the next line inside the listener: <pre>      if (key === 'w') y -= 10;</pre>This reads as: "if the pressed key is exactly the letter w, subtract 10 from y." The <code>===</code> symbol means "is exactly equal to" — we use three equals signs for comparisons in JavaScript. Because y increases going DOWN, subtracting from y moves the player UP toward the top of the box. Each press moves exactly 10 pixels, which feels snappy without being too fast. Type it and click Check Step!`,
+  check: c => /if \(key === 'w'\) y -= 10/.test(c)
+},
+
+{
+  section: "Section 2 — Movement with WASD",
+  instructions: `<b>Step 42 — Move DOWN with S</b><br><br>Now we handle the S key for moving the player downward. Type this right after the W line: <pre>      if (key === 's') y += 10;</pre><code>y += 10</code> means "add 10 to y" — and since y increases going downward on a webpage, this moves the player down. Notice this is the exact opposite of W — pressing W subtracts 10 and pressing S adds 10. Together W and S handle all vertical movement for the player. Type it and click Check Step!`,
+  check: c => /if \(key === 's'\) y \+= 10/.test(c)
+},
+
+{
+  section: "Section 2 — Movement with WASD",
+  instructions: `<b>Step 43 — Move LEFT with A</b><br><br>Now we add the A key for moving the player to the left. Type this on the next line: <pre>      if (key === 'a') x -= 10;</pre><code>x -= 10</code> means "subtract 10 from x" — and since x measures distance from the left edge, subtracting moves the player to the left. You have now handled three of the four directions: W for up, S for down, and A for left. Just one more direction to add and the basic movement will be complete! Type it and click Check Step!`,
+  check: c => /if \(key === 'a'\) x -= 10/.test(c)
+},
+
+{
+  section: "Section 2 — Movement with WASD",
+  instructions: `<b>Step 44 — Move RIGHT with D</b><br><br>The last direction — D for moving the player to the right! Type this on the next line: <pre>      if (key === 'd') x += 10;</pre><code>x += 10</code> adds 10 to x, which moves the player to the right since x increases going rightward. You have now written all four movement checks: W up, S down, A left, D right — the full WASD control scheme! However, right now the player can walk right off the edge of the game box — we will fix that in the very next steps. Type it and click Check Step!`,
+  check: c => /if \(key === 'd'\) x \+= 10/.test(c)
+},
+
+{
+  section: "Section 2 — Movement with WASD",
+  instructions: `<b>Step 45 — Guard against missing player</b><br><br>Before we try to move the player, it is good practice to make sure it actually exists. Type this on the next line: <pre>      if (!player) return;</pre>The <code>!</code> symbol means "not" — so this reads as "if player does not exist, stop here and do nothing." The <code>return</code> statement exits the function immediately so the rest of the code does not run. This is called a "guard clause" and it prevents hard-to-find bugs in your code. In our game the player will always exist, but writing code defensively is a great habit to build early. Type it and click Check Step!`,
+  check: c => /if \(!player\) return/.test(c)
+},
+
+{
+  section: "Section 2 — Movement with WASD",
+  instructions: `<b>Step 46 — Clamp x to stay inside the game</b><br><br>This line stops the player from going off the left or right walls of the game box. Type this carefully on the next line: <pre>      x = Math.max(0, Math.min(game.clientWidth - 28, x));</pre><code>Math.min(game.clientWidth - 28, x)</code> makes sure x never goes past the right edge — we subtract 28 because that is the player's width. <code>Math.max(0, ...)</code> makes sure x never drops below 0, which is the left edge. Together these two functions "clamp" x between the left wall and the right wall. Type it carefully and click Check Step!`,
+  check: c => /x = Math\.max\(0, Math\.min\(game\.clientWidth - 28, x\)\)/.test(c)
+},
+
+{
+  section: "Section 2 — Movement with WASD",
+  instructions: `<b>Step 47 — Clamp y to stay inside the game</b><br><br>Now we do the exact same boundary clamping for the vertical direction. Type this on the next line: <pre>      y = Math.max(0, Math.min(game.clientHeight - 28, y));</pre>This keeps y between 0 (the top edge) and <code>game.clientHeight - 28</code> (the bottom edge minus the player height). <code>game.clientHeight</code> returns the actual rendered height of the game box — 250 pixels, just like we set in the CSS. The player is now completely trapped inside the game box from all four sides! Type it carefully and click Check Step!`,
+  check: c => /y = Math\.max\(0, Math\.min\(game\.clientHeight - 28, y\)\)/.test(c)
+},
+
+{
+  section: "Section 2 — Movement with WASD",
+  instructions: `<b>Step 48 — Apply x to player's left position</b><br><br>We have calculated where the player should be — now we actually move it on screen! Type this on the next line: <pre>      player.style.left = x + 'px';</pre><code>player.style.left</code> directly sets the CSS <code>left</code> property of the player element — changing it instantly slides the player left or right on screen. We add <code>'px'</code> to the number because CSS always needs a unit — just writing <code>100</code> would not work, it needs to be <code>'100px'</code>. This is the bridge between our JavaScript number and the actual pixel position you see on screen. Type it and click Check Step!`,
+  check: c => /player\.style\.left = x \+ 'px'/.test(c)
+},
+
+{
+  section: "Section 2 — Movement with WASD",
+  instructions: `<b>Step 49 — Apply y to player's top position</b><br><br>One more style update — this one moves the player up or down on screen! Type this on the next line: <pre>      player.style.top = y + 'px';</pre><code>player.style.top</code> sets the CSS <code>top</code> property, controlling the vertical position of the player. Together, <code>style.left</code> and <code>style.top</code> completely define exactly where the player appears on screen at any moment. Every key press now triggers the full cycle: update x or y, clamp both, apply both to style — that is the entire game movement loop! Type it and click Check Step!`,
+  check: c => /player\.style\.top = y \+ 'px'/.test(c)
+},
+
+{
+  section: "Section 2 — Movement with WASD",
+  instructions: `<b>Step 50 — Close the event listener</b><br><br>We have written all the code inside the keydown listener — time to close it! Type <code>});</code> on the next line. The <code>}</code> closes the arrow function body that we opened back in Step 39 with <code>(e) =&gt; {</code>. The <code>)</code> closes the <code>addEventListener(</code> call, and the <code>;</code> ends the whole statement. Take a moment to count your opening braces <code>{</code> — each one should have a matching closing <code>}</code>. Type it and click Check Step!`,
+  check: c => /player\.style\.top = y \+ 'px';\n\s*\}\);/.test(c)
+},
+
+{
+  section: "Section 2 — Movement with WASD",
+  instructions: `<b>Step 51 — Close the &lt;script&gt; tag</b><br><br>We are finished writing JavaScript — close the script tag now. Type <code>&lt;/script&gt;</code> on the next line. This tells the browser that the JavaScript section is over and to stop reading it as code. Forgetting to close a script tag is a common mistake that can silently break the whole page. Your JavaScript section is now fully complete — you wrote variable declarations, an event listener, movement code, boundary clamping, and style updates! Type it and click Check Step!`,
+  check: c => /<\/script>/i.test(c)
+},
+
+{
+  section: "Section 2 — Movement with WASD",
+  instructions: `<b>Step 52 — Close &lt;/body&gt;</b><br><br>We have added all the HTML content we need — time to close the body section. Type <code>&lt;/body&gt;</code> on the next line. This closes the <code>&lt;body&gt;</code> tag we opened back in Step 30 and marks the end of all visible page content. Every tag you open must be closed — HTML is like parentheses and every opening needs a matching closing. Your page now has a complete and properly structured body section with the game box, player, and script inside it. Type it and click Check Step!`,
+  check: c => /<\/body>/i.test(c)
+},
+
+{
+  section: "Section 2 — Movement with WASD",
+  instructions: `<b>Step 53 — Close &lt;/html&gt;</b><br><br>This is the very last line of the entire file! Type <code>&lt;/html&gt;</code> on the final line. This closes the <code>&lt;html&gt;</code> tag from Step 2 — the outer wrapper we opened at the very beginning. Nothing should come after this closing tag — it marks the absolute end of your HTML document. Your complete game file now exists entirely in the editor — every single line has been typed by you. Type it and click Check Step!`,
+  check: c => /<\/html>/i.test(c)
+},
+
+{
+  section: "Section 2 — Movement with WASD",
+  instructions: `<b>Step 54 — Save your file and open it in a browser</b><br><br>The code is complete — time to see it work! Copy all the code from the editor, paste it into a new file on your computer, and save it with the name <code>game.html</code>. Then double-click the file to open it in your web browser — you should see a dark page with a grey-bordered rounded rectangle in the center. Inside the rectangle there should be a small box in the top-left corner showing the text "background: #22c55e;". Click the game area with your mouse so the page knows to listen for your keyboard. Click Check Step when you can see the game box!`,
+  check: c => /<!doctype html>/i.test(c) && /addEventListener/.test(c)
+},
+
+{
+  section: "Section 2 — Movement with WASD",
+  instructions: `<b>Step 55 — Test the W key</b><br><br>Click on the game area with your mouse first to make sure the page is focused. Now press the W key on your keyboard — the player square should slide smoothly upward! Press W several times and watch the player travel toward the top of the game box. When the player reaches the very top edge it should STOP cleanly and not go past the border at all. If the player disappears off the top, go back and double-check your clamping line from Step 47. Click Check Step when W is working correctly!`,
+  check: c => /Math\.max\(0, Math\.min\(game\.clientHeight - 28, y\)\)/.test(c)
+},
+
+{
+  section: "Section 2 — Movement with WASD",
+  instructions: `<b>Step 56 — Test the S key</b><br><br>Press the S key on your keyboard now — the player should slide downward this time. Press S multiple times until the player reaches the bottom edge of the game box. The player should stop right at the bottom border and not disappear below it. Try pressing W and S alternately to move the player up and down several times — it should feel responsive and smooth. The player moves exactly 10 pixels per key press in the vertical direction. Click Check Step when S is working correctly!`,
+  check: c => /if \(key === 's'\) y \+= 10/.test(c)
+},
+
+{
+  section: "Section 2 — Movement with WASD",
+  instructions: `<b>Step 57 — Test the A and D keys</b><br><br>Press the A key and the player should slide to the left side of the game box. Then press D and the player should move to the right. Test both horizontal walls: press A until the player reaches the left wall, then press D until it reaches the right wall — it should stop cleanly at both edges. You now have fully working four-directional movement that stays inside the box! Try switching between all four WASD keys and enjoy the movement you built. Click Check Step when A and D are both working correctly!`,
+  check: c => /if \(key === 'a'\) x -= 10/.test(c) && /if \(key === 'd'\) x \+= 10/.test(c)
+},
+
+{
+  section: "Section 2 — Movement with WASD",
+  instructions: `<b>Step 58 — Test all four corners</b><br><br>Now navigate the player to all four corners of the game box to confirm every boundary works perfectly. Try top-left (press W then A), top-right (press W then D), bottom-left (press S then A), and bottom-right (press S then D). In every corner the player should stop exactly at the edge without going past it in any direction. This confirms that both your x and y clamping lines from Steps 46 and 47 are working exactly as they should. A game that respects its boundaries is a game that feels fair and fun to play! Click Check Step when all four corners work!`,
+  check: c => /Math\.max\(0, Math\.min\(game\.clientWidth - 28, x\)\)/.test(c) && /Math\.max\(0, Math\.min\(game\.clientHeight - 28, y\)\)/.test(c)
+},
+
+{
+  section: "Section 2 — Movement with WASD",
+  instructions: `<b>Step 59 — Review what you built</b><br><br>Let us look back at everything you created — you built a complete working browser game entirely from scratch! The HTML section made two nested boxes — the game container and the player square inside it. The CSS section styled everything: the dark centered page, the sized bordered game box, and the positioned movable player. The JavaScript section wired up the keyboard so W, A, S, D move the player, and the clamping math keeps it safely inside the box at all times. Three languages working as a team to make something interactive — that is real web development! Click Check Step to get to the final step!`,
+  check: c => /<html>/i.test(c) && /body\s*\{/.test(c) && /addEventListener/.test(c)
+},
+
+{
+  section: "Section 2 — Movement with WASD",
+  instructions: `<b>Step 60 — You did it! 🎉</b><br><br>Congratulations — you have finished the entire WASD Lesson Game lesson and built a real browser game! You learned HTML structure, CSS styling with colors and layouts, and JavaScript events, variables, and logic — all in one project. Try this challenge next: find the CSS comment <code>/* STEP 2: add background: #22c55e; */</code> and replace it with a real <code>background: #22c55e;</code> property — the player will turn solid green! You can also try changing the game box size, the player size, or the movement speed (the number 10) to make your own custom version. Share your finished game with a friend and try to explain what each part does — teaching someone else is the best way to truly understand something! Click Check Step one last time to confirm your masterpiece is complete!`,
+  check: c => {
+    return (
+      /<!doctype html>/i.test(c) &&
+      /<html>/i.test(c) &&
+      /charset="UTF-8"/.test(c) &&
+      /<title>WASD Lesson Game<\/title>/i.test(c) &&
+      /body\s*\{[^}]*margin:\s*0/.test(c) &&
+      /body\s*\{[^}]*background:\s*#0f172a/.test(c) &&
+      /body\s*\{[^}]*display:\s*grid/.test(c) &&
+      /#game\s*\{[^}]*width:\s*420px/.test(c) &&
+      /#game\s*\{[^}]*position:\s*relative/.test(c) &&
+      /#player\s*\{[^}]*position:\s*absolute/.test(c) &&
+      /<div id="game">/.test(c) &&
+      /<div id="player">background: #22c55e;<\/div>/.test(c) &&
+      /const game = document\.getElementById\('game'\)/.test(c) &&
+      /const player = document\.getElementById\('player'\)/.test(c) &&
+      /let x = 0/.test(c) && /let y = 0/.test(c) &&
+      /key === 'w'/.test(c) && /key === 's'/.test(c) &&
+      /key === 'a'/.test(c) && /key === 'd'/.test(c) &&
+      /Math\.max\(0, Math\.min\(game\.clientWidth - 28, x\)\)/.test(c) &&
+      /Math\.max\(0, Math\.min\(game\.clientHeight - 28, y\)\)/.test(c) &&
+      /player\.style\.left = x \+ 'px'/.test(c) &&
+      /player\.style\.top = y \+ 'px'/.test(c)
+    );
+  }
+}
+
+]; // end steps
+
+// ── RENDER ──────────────────────────────────────────────────
+
+let currentStep = 0;
+const done = new Array(steps.length).fill(false);
+
+const tabsContainer = document.getElementById('tabs');
+steps.forEach((_, i) => {
+  const tab = document.createElement('div');
+  tab.className = 'tab';
+  tab.innerText = i + 1;
+  tab.onclick = () => showStep(i);
+  tabsContainer.appendChild(tab);
+});
+
+function updateProgress() {
+  const pct = (done.filter(Boolean).length / steps.length) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('done', done[i]);
+  });
+}
+
+function showStep(index) {
+  currentStep = index;
+  const s = steps[index];
+  document.getElementById('step-number').innerText = `Step ${index + 1} of ${steps.length}`;
+  document.getElementById('section-label').innerText = s.section;
+  document.getElementById('step-instructions').innerHTML = s.instructions;
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === index));
+  document.getElementById('check-result').innerText = '';
+  // ← textarea is NEVER touched — code stays as the student builds it
+}
+
+function checkStep() {
+  const code = document.getElementById('step-code').value;
+  const ok = steps[currentStep].check(code);
+  if (ok) {
+    done[currentStep] = true;
+    updateProgress();
+    document.getElementById('check-result').innerText = '✅ Correct! Move to the next step.';
+  } else {
+    document.getElementById('check-result').innerText = '❌ Not quite — re-read the instructions and check your code.';
+  }
+}
+
+function nextStep() {
+  if (currentStep < steps.length - 1) showStep(currentStep + 1);
+}
+
+showStep(0);
+updateProgress();
+</script>
+</body>
+</html>
