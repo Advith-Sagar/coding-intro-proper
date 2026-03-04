@@ -13,6 +13,9 @@ const JDOODLE_CLIENT_ID_KEY = 'jdoodle_client_id';
 const JDOODLE_CLIENT_SECRET_KEY = 'jdoodle_client_secret';
 const OPENAI_API_KEY_STORAGE_KEY = 'openai_api_key';
 const OPENAI_MODEL_STORAGE_KEY = 'openai_model';
+const LESSON_ONE_DONE_KEY = 'lesson_one_completed_v1';
+const LESSON_ONE_START_TS_KEY = 'lesson_one_start_ts_v1';
+const LESSON_ONE_TIMER_MS = 25 * 60 * 1000;
 
 const HEX_COLOR_REGEX = /#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\b/g;
 
@@ -186,6 +189,11 @@ const activeFileLabel = document.getElementById('activeFileLabel');
 const swapSidebarViewButton = document.getElementById('swapSidebarView');
 const sidebarExplorerView = document.getElementById('sidebarExplorerView');
 const sidebarLessonView = document.getElementById('sidebarLessonView');
+const lessonTitle = document.getElementById('lessonTitle');
+const lessonSelect1Button = document.getElementById('lessonSelect1');
+const lessonSelect2Button = document.getElementById('lessonSelect2');
+const lessonLockNote = document.getElementById('lessonLockNote');
+const lessonTimerEl = document.getElementById('lessonTimer');
 const lessonStepLabel = document.getElementById('lessonStepLabel');
 const lessonPrompt = document.getElementById('lessonPrompt');
 const lessonExpected = document.getElementById('lessonExpected');
@@ -235,50 +243,125 @@ let sidebarView = 'explorer';
 let lessonStepIndex = 0;
 let lessonLoaded = false;
 let lessonSource = 'default';
+let activeLessonId = 'lesson1';
+let lessonTimerInterval = null;
 
-const LESSON_TEMPLATE = `<!doctype html>
+const LESSON_ONE_TEMPLATE = `<!doctype html>
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title>WASD Lesson Game</title>
+  <title>Dot Dodge Starter</title>
   <style>
-    body { margin: 0; background: #0f172a; color: #e2e8f0; font-family: Arial, sans-serif; display: grid; place-items: center; min-height: 100vh; }
-    #game { width: 420px; height: 250px; border: 2px solid #64748b; border-radius: 10px; position: relative; overflow: hidden; }
-    #player { width: 28px; height: 28px; position: absolute; left: 0; top: 0; /* STEP 2: add background: #22c55e; */ }
+    body { margin: 0; background: #0f172a; color: #e2e8f0; font-family: Arial, sans-serif; }
+    #game-container { position: relative; width: 600px; height: 400px; margin: 24px auto; border: 2px solid #000; background: #000; overflow: hidden; }
+    #score-overlay { position: absolute; top: 10px; left: 10px; color: white; font-family: sans-serif; pointer-events: none; }
+    #play-screen {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+    }
+    #play-button { padding: 12px 24px; font-size: 18px; background: #00ff00; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
   </style>
 </head>
 <body>
-  <div id="game">
-    <!-- STEP 1: add <div id="player"></div> -->
+  <div id="game-container">
+    <div id="play-screen"><button id="play-button">PLAY</button></div>
+    <div id="score-overlay">Score: <span id="score">0</span></div>
+    <canvas id="game-canvas"></canvas>
   </div>
   <script>
-    const game = document.getElementById('game');
-    const player = document.getElementById('player');
-    // STEP 3: add let x = 0;
-    let y = 0;
-    addEventListener('keydown', (e) => {
-      const key = e.key.toLowerCase();
-      // STEP 4: add if (key === 'w') y -= 10;
-      if (key === 's') y += 10;
-      if (key === 'a') x -= 10;
-      if (key === 'd') x += 10;
-      if (!player) return;
-      x = Math.max(0, Math.min(game.clientWidth - 28, x));
-      y = Math.max(0, Math.min(game.clientHeight - 28, y));
-      player.style.left = x + 'px';
-      player.style.top = y + 'px';
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas.getContext('2d');
+    const scoreEl = document.getElementById('score');
+    const playScreen = document.getElementById('play-screen');
+    const playButton = document.getElementById('play-button');
+    canvas.width = 600;
+    canvas.height = 400;
+    let score = 0;
+    let player = { x: 300, y: 200 };
+    let enemies = [];
+    let gameActive = false;
+
+    playButton.addEventListener('click', () => {
+      playScreen.style.display = 'none';
+      score = 0;
+      scoreEl.innerText = '0';
+      enemies = [];
+      player = { x: 300, y: 200 };
+      gameActive = true;
+      update();
     });
+
+    canvas.addEventListener('mousemove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      player.x = e.clientX - rect.left;
+      player.y = e.clientY - rect.top;
+    });
+
+    function spawnEnemy() {
+      const size = Math.random() * 30 + 10;
+      enemies.push({ x: canvas.width, y: Math.random() * (canvas.height - size), size, speed: Math.random() * 3 + 2 + (score / 10) });
+    }
+
+    function update() {
+      if (!gameActive) return;
+      ctx.fillStyle = "black";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#00ff00";
+      ctx.fillRect(player.x - 5, player.y - 5, 10, 10);
+
+      for (let i = enemies.length - 1; i >= 0; i--) {
+        let e = enemies[i];
+        e.x -= e.speed;
+        ctx.fillStyle = "#ff4444";
+        ctx.fillRect(e.x, e.y, e.size, e.size);
+
+        if (player.x < e.x + e.size && player.x > e.x && player.y < e.y + e.size && player.y > e.y) {
+          gameActive = false;
+          alert('Game Over! Score: ' + score);
+          location.reload();
+          return;
+        }
+
+        if (e.x + e.size < 0) {
+          enemies.splice(i, 1);
+          score++;
+          scoreEl.innerText = score;
+        }
+      }
+
+      if (Math.random() < 0.05) spawnEnemy();
+      requestAnimationFrame(update);
+    }
   </script>
 </body>
 </html>`;
 
+const LESSON_ONE_STEPS = [
+  {
+    prompt: 'Step 1: Customize this starter game code in the IDE (change colors, speeds, sizes, text, or behavior), then click Check.',
+    expected: '',
+    hint: 'Any real code change from the starter counts.',
+    check: (code) => String(code || '').trim() !== LESSON_ONE_TEMPLATE.trim()
+  }
+];
 const DEFAULT_LESSON_STEPS = [
   { prompt: 'Step 1: In the HTML game box, add the player element.', expected: '<div id="player"></div>' },
   { prompt: 'Step 2: In #player CSS, add a background color.', expected: 'background: #22c55e;' },
   { prompt: 'Step 3: In JS, create the x position variable.', expected: 'let x = 0;' },
   { prompt: "Step 4: Add W key movement in JS.", expected: "if (key === 'w') y -= 10;" }
 ];
-let lessonSteps = [...DEFAULT_LESSON_STEPS];
+
+const lessonCatalog = {
+  lesson1: { id: 'lesson1', title: 'Lesson 1: Dot Game Editor', source: 'inline', starter: LESSON_ONE_TEMPLATE, steps: LESSON_ONE_STEPS, locked: false },
+  lesson2: { id: 'lesson2', title: 'Lesson 2: Advanced HTML Course', source: 'file', starter: '', steps: [...DEFAULT_LESSON_STEPS], locked: true }
+};
+let lessonSteps = [...lessonCatalog.lesson1.steps];
 
 function pxVar(name, fallback) {
   const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -309,6 +392,57 @@ function setSidebarView(view) {
 
 function normalizeSnippet(value) {
   return String(value || '').toLowerCase().replace(/\s+/g, ' ').trim();
+}
+
+function formatMs(ms) {
+  const total = Math.max(0, Math.ceil(ms / 1000));
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
+function lessonOneStartTs() {
+  const raw = Number(localStorage.getItem(LESSON_ONE_START_TS_KEY) || 0);
+  return Number.isFinite(raw) && raw > 0 ? raw : 0;
+}
+
+function ensureLessonOneTimerStarted() {
+  let ts = lessonOneStartTs();
+  if (!ts) {
+    ts = Date.now();
+    localStorage.setItem(LESSON_ONE_START_TS_KEY, String(ts));
+  }
+  return ts;
+}
+
+function lessonOneRemainingMs() {
+  const ts = lessonOneStartTs();
+  if (!ts) return LESSON_ONE_TIMER_MS;
+  return Math.max(0, LESSON_ONE_TIMER_MS - (Date.now() - ts));
+}
+
+function stopLessonTimerTicker() {
+  if (lessonTimerInterval) clearInterval(lessonTimerInterval);
+  lessonTimerInterval = null;
+}
+
+function startLessonTimerTicker() {
+  stopLessonTimerTicker();
+  lessonTimerInterval = setInterval(updateLessonTimerDisplay, 1000);
+}
+
+function updateLessonTimerDisplay() {
+  if (!lessonTimerEl) return;
+  if (activeLessonId !== 'lesson1') {
+    lessonTimerEl.textContent = 'Lesson 1 Timer: completed';
+    return;
+  }
+  const remaining = lessonOneRemainingMs();
+  if (remaining <= 0) {
+    lessonTimerEl.textContent = 'Lesson 1 Timer: 00:00 (ready)';
+    return;
+  }
+  lessonTimerEl.textContent = `Lesson 1 Timer: ${formatMs(remaining)} remaining`;
 }
 
 function parsePipeSeparatedLessons(text) {
@@ -355,20 +489,56 @@ async function loadLessonsFromFile() {
     if (!text.trim()) return;
     const scriptParsed = parseScriptStepsLessons(text);
     if (scriptParsed.length > 0) {
-      lessonSteps = scriptParsed;
-      lessonStepIndex = 0;
-      lessonSource = 'file';
+      lessonCatalog.lesson2.steps = scriptParsed;
       return;
     }
     const pipeParsed = parsePipeSeparatedLessons(text);
     if (pipeParsed.length > 0) {
-      lessonSteps = pipeParsed;
-      lessonStepIndex = 0;
-      lessonSource = 'file';
+      lessonCatalog.lesson2.steps = pipeParsed;
     }
   } catch {
     // Keep defaults when Lessons.txt is unavailable or invalid.
   }
+}
+
+function isLessonOneComplete() {
+  return localStorage.getItem(LESSON_ONE_DONE_KEY) === '1';
+}
+
+function setLessonOneComplete() {
+  localStorage.setItem(LESSON_ONE_DONE_KEY, '1');
+}
+
+function refreshLessonLockState() {
+  lessonCatalog.lesson2.locked = !isLessonOneComplete();
+  lessonSelect1Button?.classList.toggle('active', activeLessonId === 'lesson1');
+  lessonSelect2Button?.classList.toggle('active', activeLessonId === 'lesson2');
+  if (lessonSelect2Button) lessonSelect2Button.textContent = lessonCatalog.lesson2.locked ? 'Lesson 2 (Locked)' : 'Lesson 2';
+  if (lessonSelect2Button) lessonSelect2Button.disabled = false;
+  if (lessonLockNote) {
+    lessonLockNote.textContent = lessonCatalog.lesson2.locked
+      ? 'Complete Lesson 1 to unlock Lesson 2.'
+      : 'Lesson 2 unlocked.';
+  }
+}
+
+function selectLesson(lessonId) {
+  const lesson = lessonCatalog[lessonId];
+  if (!lesson) return;
+  if (lesson.locked) {
+    lessonMessage.textContent = 'Lesson 2 is locked until Lesson 1 is complete.';
+    return;
+  }
+  activeLessonId = lessonId;
+  lessonSteps = [...lesson.steps];
+  lessonSource = lesson.source;
+  lessonStepIndex = 0;
+  lessonLoaded = false;
+  if (lessonTitle) lessonTitle.textContent = lesson.title;
+  lessonMessage.textContent = 'Click Load Starter to begin this lesson.';
+  refreshLessonLockState();
+  updateLessonTimerDisplay();
+  renderLessonStep();
 }
 
 function renderLessonStep() {
@@ -390,15 +560,21 @@ function loadLessonStarterIntoEditor() {
   if (!editor) return;
   languageSelect.value = 'html';
   languageSelect.dispatchEvent(new Event('change'));
-  const starter = lessonSource === 'file'
-    ? ''
-    : LESSON_TEMPLATE;
+  const lesson = lessonCatalog[activeLessonId] || lessonCatalog.lesson1;
+  const starter = lesson.source === 'file' ? '' : lesson.starter;
   editor.setValue(starter);
   lessonLoaded = true;
   lessonStepIndex = 0;
-  lessonMessage.textContent = lessonSource === 'file'
+  if (activeLessonId === 'lesson1') {
+    ensureLessonOneTimerStarted();
+    startLessonTimerTicker();
+  } else {
+    stopLessonTimerTicker();
+  }
+  lessonMessage.textContent = lesson.source === 'file'
     ? 'Blank starter loaded. Begin from scratch and complete Step 1.'
-    : 'Starter loaded into IDE editor. Complete Step 1 and click Check.';
+    : 'Starter loaded. Customize anything in the game code, then click Check.';
+  updateLessonTimerDisplay();
   renderLessonStep();
 }
 
@@ -410,13 +586,21 @@ function checkLessonStepInEditor() {
   const step = lessonSteps[lessonStepIndex];
   if (!step) return;
   const code = editor.getValue();
-  const ok = typeof step.check === 'function'
+  let ok = typeof step.check === 'function'
     ? !!step.check(code)
     : normalizeSnippet(code).includes(normalizeSnippet(step.expected));
+  let extraHint = '';
+  if (activeLessonId === 'lesson1') {
+    const remaining = lessonOneRemainingMs();
+    if (remaining > 0) {
+      ok = false;
+      extraHint = ` Timer not finished yet (${formatMs(remaining)} left).`;
+    }
+  }
   const hint = step.hint ? ` Hint: ${step.hint}` : '';
   lessonMessage.textContent = ok
     ? 'Correct. Continue unlocked.'
-    : `Not yet. Update code in the IDE editor and try again.${hint}`;
+    : `Not yet. Update code in the IDE editor and try again.${hint}${extraHint}`;
   lessonContinueButton.disabled = !ok;
 }
 
@@ -425,8 +609,14 @@ function continueLessonStep() {
   lessonStepIndex += 1;
   if (lessonStepIndex >= lessonSteps.length) {
     lessonStepIndex = lessonSteps.length;
+    if (activeLessonId === 'lesson1') {
+      setLessonOneComplete();
+      refreshLessonLockState();
+    }
     renderLessonStep();
-    lessonMessage.textContent = 'All checks passed. Run code in the IDE to test WASD movement.';
+    lessonMessage.textContent = activeLessonId === 'lesson1'
+      ? 'Lesson 1 complete. Lesson 2 is now unlocked.'
+      : 'All checks passed. Great job on Lesson 2.';
     setStatus('Lesson complete');
     return;
   }
@@ -2131,11 +2321,18 @@ populateJdoodleLanguages();
 loadJdoodleCredentials();
 loadOpenaiCredentials();
 setSidebarView('explorer');
-loadLessonsFromFile().finally(renderLessonStep);
+loadLessonsFromFile().finally(() => {
+  refreshLessonLockState();
+  selectLesson('lesson1');
+  updateLessonTimerDisplay();
+  startLessonTimerTicker();
+});
 
 swapSidebarViewButton?.addEventListener('click', () => {
   setSidebarView(sidebarView === 'explorer' ? 'lesson' : 'explorer');
 });
+lessonSelect1Button?.addEventListener('click', () => selectLesson('lesson1'));
+lessonSelect2Button?.addEventListener('click', () => selectLesson('lesson2'));
 lessonLoadButton?.addEventListener('click', loadLessonStarterIntoEditor);
 lessonCheckButton?.addEventListener('click', checkLessonStepInEditor);
 lessonHintButton?.addEventListener('click', requestLessonHintFromAI);

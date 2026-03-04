@@ -1,60 +1,183 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mini Game Lesson</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body{margin:0;font-family:Arial,sans-serif;background:#0f172a;color:#e2e8f0;display:grid;place-items:center;min-height:100vh}
-    .card{width:min(92vw,680px);background:#111827;border:1px solid #334155;border-radius:12px;padding:16px}
-    h1{margin:0 0 6px;font-size:1.15rem}.sub{margin:0 0 12px;color:#94a3b8}
-    .step{display:none}.step.active{display:block}
-    .row{display:flex;gap:8px;flex-wrap:wrap}input{padding:8px;border-radius:8px;border:1px solid #334155;background:#0b1220;color:#e2e8f0;min-width:220px}
-    button{padding:8px 10px;border:1px solid #334155;border-radius:8px;background:#1e293b;color:#e2e8f0;cursor:pointer}
-    button:disabled{opacity:.45;cursor:not-allowed}.msg{min-height:20px;margin:8px 0 10px;color:#93c5fd}
-    #gameWrap{display:none;margin-top:12px}.note{margin:8px 0;color:#cbd5e1}
-    #game{width:420px;max-width:100%;height:250px;border:2px solid #475569;border-radius:10px;position:relative;overflow:hidden;background:#1f2937}
-    #player{width:28px;height:28px;background:#22c55e;border-radius:6px;position:absolute;left:0;top:0}
-    code{background:#0b1220;padding:2px 5px;border-radius:6px}
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .content-wrapper {
+      max-width: 900px;
+      width: 95%;
+      padding: 40px 20px;
+    }
+    h1 { color: #2c3e50; border-bottom: 2px solid #00ff00; padding-bottom: 10px; }
+    p { margin-bottom: 20px; font-size: 1.1rem; }
+
+    #game-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      max-height: 500px;
+      margin: 30px 0;
+      border: 4px solid #333;
+      background: #000;
+      overflow: hidden;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    #game-canvas { display: block; width: 100%; height: 100%; cursor: crosshair; }
+    #score-overlay { position: absolute; top: 20px; left: 20px; color: white; font-family: sans-serif; pointer-events: none; font-size: 24px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+    #play-screen {
+      position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.85);
+      display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10;
+    }
+    #play-button {
+      padding: 20px 50px; font-size: 28px; cursor: pointer; background: #00ff00;
+      border: none; border-radius: 50px; font-weight: bold; transition: all 0.2s;
+    }
+    #play-button:hover { transform: scale(1.05); background: #05e605; box-shadow: 0 0 20px rgba(0,255,0,0.4); }
+
+    #startProjectBtn {
+      display: block;
+      width: 100%;
+      max-width: 400px;
+      margin: 40px auto;
+      padding: 20px;
+      font-size: 22px;
+      font-weight: bold;
+      cursor: pointer;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(0,123,255,0.3);
+    }
+    #startProjectBtn:hover { background: #0056b3; transform: translateY(-2px); }
   </style>
 </head>
 <body>
-  <main class="card">
-    <h1>Build a Tiny Movement Game</h1>
-    <p class="sub">Pass each check to unlock Continue, then play with WASD.</p>
-    <section id="lesson">
-      <div class="step active" data-step="1"><p>Step 1 (HTML): type <code>div</code></p><div class="row"><input id="a1" /><button data-check="1">Check</button><button data-next="1" disabled>Continue</button></div><p class="msg" id="m1"></p></div>
-      <div class="step" data-step="2"><p>Step 2 (CSS): type <code>background</code></p><div class="row"><input id="a2" /><button data-check="2">Check</button><button data-next="2" disabled>Continue</button></div><p class="msg" id="m2"></p></div>
-      <div class="step" data-step="3"><p>Step 3 (JS var): type <code>let x = 0</code></p><div class="row"><input id="a3" /><button data-check="3">Check</button><button data-next="3" disabled>Continue</button></div><p class="msg" id="m3"></p></div>
-      <div class="step" data-step="4"><p>Step 4 (JS if): type <code>if (key === 'w')</code></p><div class="row"><input id="a4" /><button data-check="4">Check</button><button data-next="4" disabled>Continue</button></div><p class="msg" id="m4"></p></div>
-    </section>
-    <section id="gameWrap"><p class="note">Nice. Use W A S D to move. Stay inside the box.</p><div id="game"><div id="player"></div></div></section>
-  </main>
+  <div class="content-wrapper">
+    <h1>What is coding?</h1>
+    <p>
+      Coding is just a list of instructions for a computer. Think of
+      it like a recipe: the computer follows your steps exactly to build something amazing.
+    </p>
+
+    <h1>Languages</h1>
+    <p>
+      Today's topic is <strong>HTML</strong>. It's the language of the web! We're going to use it to build a fast-paced dodging game.
+    </p>
+
+    <p>Try the demo below! Move your mouse to dodge the obstacles.</p>
+
+    <div id="game-container">
+      <div id="play-screen">
+        <button id="play-button">START MISSION</button>
+      </div>
+      <div id="score-overlay">SCORE: <span id="score">0</span></div>
+      <canvas id="game-canvas"></canvas>
+    </div>
+
+    <p>Ready to build this yourself? Click the button below to open the <strong>Full Screen Editor</strong> and start modding!</p>
+
+    <button id="startProjectBtn">Launch Code Editor</button>
+  </div>
+
   <script>
-    const steps=[...document.querySelectorAll('.step')],ans={1:{v:'div',t:'word'},2:{v:'background',t:'word'},3:{v:'let x = 0',t:'code'},4:{v:"if (key === 'w')",t:'code'}};
-    let currentStep=1;
-    const normWord=s=>s.trim().toLowerCase().replace(/\s+/g,' ');
-    const normCode=s=>s.trim().replace(/\s+/g,' ').replace(/\s*([=()'])\s*/g,'$1');
-    const norm=(s,t)=>t==='word'?normWord(s):normCode(s);
-    function show(step){steps.forEach(el=>el.classList.toggle('active',Number(el.dataset.step)===step));currentStep=step;}
-    document.querySelectorAll('[data-check]').forEach(btn=>btn.onclick=()=>{
-      const n=btn.dataset.check,a=document.getElementById('a'+n).value,m=document.getElementById('m'+n),ok=norm(a,ans[n].t)===norm(ans[n].v,ans[n].t);
-      m.textContent=ok?'Correct. Continue unlocked.':'Try again. Check spacing/symbols.';if(ok)document.querySelector(`[data-next="${n}"]`).disabled=false;
-    });
-    document.querySelectorAll('[data-next]').forEach(btn=>btn.onclick=()=>{
-      const n=Number(btn.dataset.next);if(btn.disabled||n!==currentStep)return;
-      if(n<4)show(n+1);else document.getElementById('gameWrap').style.display='block';
-    });
-    const game=document.getElementById('game'),playerEl=document.getElementById('player'),keys={w:false,a:false,s:false,d:false},player={x:0,y:0,size:28,speed:3};
-    addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(keys[k]!==undefined)keys[k]=true;});
-    addEventListener('keyup',e=>{const k=e.key.toLowerCase();if(keys[k]!==undefined)keys[k]=false;});
-    function loop(){
-      if(keys.w)player.y-=player.speed;if(keys.s)player.y+=player.speed;if(keys.a)player.x-=player.speed;if(keys.d)player.x+=player.speed;
-      const maxX=game.clientWidth-player.size,maxY=game.clientHeight-player.size;
-      player.x=Math.max(0,Math.min(maxX,player.x));player.y=Math.max(0,Math.min(maxY,player.y));
-      playerEl.style.left=player.x+'px';playerEl.style.top=player.y+'px';requestAnimationFrame(loop);
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas.getContext('2d');
+    const scoreEl = document.getElementById('score');
+    const playScreen = document.getElementById('play-screen');
+    const playButton = document.getElementById('play-button');
+
+    function resize() {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
     }
-    loop();
+    window.addEventListener('resize', resize);
+    resize();
+
+    let score = 0;
+    let player = { x: canvas.width / 2, y: canvas.height / 2 };
+    let enemies = [];
+    let gameActive = false;
+
+    playButton.addEventListener('click', () => {
+      playScreen.style.display = 'none';
+      score = 0;
+      scoreEl.innerText = '0';
+      enemies = [];
+      player = { x: canvas.width / 2, y: canvas.height / 2 };
+      gameActive = true;
+      update();
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      player.x = e.clientX - rect.left;
+      player.y = e.clientY - rect.top;
+    });
+
+    function spawnEnemy() {
+      const size = Math.random() * 40 + 20;
+      enemies.push({
+        x: canvas.width + 100,
+        y: Math.random() * (canvas.height - size),
+        size,
+        speed: Math.random() * 3 + 4 + (score / 10),
+      });
+    }
+
+    function update() {
+      if (!gameActive) return;
+      ctx.fillStyle = '#0a0a0a';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = '#00ff00';
+      ctx.beginPath();
+      ctx.arc(player.x, player.y, 10, 0, Math.PI * 2);
+      ctx.fill();
+
+      for (let i = enemies.length - 1; i >= 0; i--) {
+        const e = enemies[i];
+        e.x -= e.speed;
+        ctx.fillStyle = '#ff3333';
+        ctx.fillRect(e.x, e.y, e.size, e.size);
+
+        if (player.x > e.x && player.x < e.x + e.size && player.y > e.y && player.y < e.y + e.size) {
+          gameActive = false;
+          playScreen.style.display = 'flex';
+          playButton.innerHTML = "RETRY<br><small style='font-size:14px'>Score: " + score + '</small>';
+          return;
+        }
+
+        if (e.x + e.size < 0) {
+          enemies.splice(i, 1);
+          score++;
+          scoreEl.innerText = score;
+        }
+      }
+
+      if (Math.random() < 0.08) spawnEnemy();
+      requestAnimationFrame(update);
+    }
+  </script>
+
+  <script>
+    document.getElementById('startProjectBtn').addEventListener('click', function() {
+      window.location.href = './index.html';
+    });
   </script>
 </body>
 </html>

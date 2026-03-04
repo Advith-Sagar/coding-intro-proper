@@ -560,6 +560,31 @@ body.strong-focus-ui select:focus {
   gap: 8px;
 }
 
+.lesson-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.lesson-selector button.active {
+  background: #0e639c;
+  border-color: #1177bb;
+  color: #fff;
+}
+
+#lessonLockNote {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #9aa6b4;
+}
+
+#lessonTimer {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #d7dee9;
+  font-weight: 600;
+}
+
 .lesson-panel h2 {
   margin: 0;
   font-size: 0.95rem;

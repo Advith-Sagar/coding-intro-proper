@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      margin: 0;
+      padding: 24px;
+      background: #1e1e1e;
+      color: #d4d4d4;
+      font-family: "Segoe UI", Arial, sans-serif;
+      line-height: 1.55;
+    }
+    h1 {
+      color: #ffffff;
+      border-bottom: 1px solid #3c3c3c;
+      padding-bottom: 8px;
+      margin-top: 24px;
+    }
+    p { color: #c5c5c5; max-width: 980px; }
+    table {
+      border-collapse: collapse;
+      background: #252526;
+      border: 1px solid #3c3c3c;
+      margin: 12px 0 18px;
+      max-width: 980px;
+    }
+    th, td {
+      border: 1px solid #3c3c3c;
+      padding: 10px 12px;
+      vertical-align: top;
+    }
+    th { background: #2d2d30; color: #e6e6e6; }
+    td { color: #c8c8c8; }
+    #list {
+      background: #1f1f1f;
+      color: #d4d4d4;
+      border: 1px solid #3c3c3c;
+      border-radius: 6px;
+      padding: 10px;
+      width: min(980px, 100%);
+      font-family: Consolas, Monaco, monospace;
+    }
+    #game-container { position: relative; width: 600px; height: 400px; margin: 20px 0; border: 2px solid #000; background: #000; overflow: hidden; }
+    #game-canvas { cursor: crosshair; }
+    #score-overlay { position: absolute; top: 10px; left: 10px; color: white; font-family: sans-serif; pointer-events: none; }
+    #play-screen {
+      position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.8);
+      display: flex; justify-content: center; align-items: center; z-index: 10;
+    }
+    #play-button {
+      padding: 15px 30px; font-size: 20px; cursor: pointer; background: #00ff00;
+      border: none; border-radius: 5px; font-weight: bold;
+    }
+    #play-button:hover { background: #00cc00; }
+    #startProjectBtn {
+      padding: 12px 24px;
+      font-size: 18px;
+      cursor: pointer;
+      background: #0e639c;
+      color: #fff;
+      border: 1px solid #1177bb;
+      border-radius: 8px;
+      font-weight: bold;
+      margin-top: 6px;
+    }
+    #startProjectBtn:hover { background: #1177bb; }
+  </style>
+</head>
+<body>
+  <h1>What is coding?</h1>
+  <p>
+    Coding is just a list of instructions for a computer. Think of
+    it like a recipe for a cake: the computer follows your steps exactly.
+    Computers are powerful: They can solve massive equations like
+    in a blink.
+  </p>
+  <p>
+    But they are not "smart": They don't think for themselves.
+    If you forget a single comma or bracket, the computer will
+    stop and say, "I don't understand".
+  </p>
+  <h1>Block vs. Text</h1>
+  <p>
+    Block Coding (like Scratch): You drag and drop pieces. It's great for
+    beginners because it's impossible to make a "syntax error" (the pieces
+    only fit if they are correct). Text Coding (like Python): This is what
+    professionals use. It is faster and more powerful because it can use
+    multiple CPU cores to handle heavy tasks. While it may be harder to learn,
+    it gives unlimited "freedom" to build real apps, AI, and websites.
+  </p>
+  <h1>Languages</h1>
+  <p>
+    There are many coding languages, each specified for effiecieny in
+    a specific topic. For example: Here are some coding languages:
+  </p>
+  <table>
+    <tr>
+      <th>HTML</th>
+      <th>Python</th>
+    </tr>
+    <tr>
+      <td>HTML is used to make websites, every website in the whole
+      google chrome is made from HTML (&gt;99% atleast)</td>
+      <td>Python is better at text and heavy data loads.</td>
+    </tr>
+  </table>
+  <p>
+   Todays topic is going to be HTML as it is best for making video
+   games. Lets take a look at some popular video games made from HTML:
+  </p>
+  <table>
+    <tr>
+      <th>Game</th>
+    </tr>
+    <tr>
+      <td>Command &amp; Conquer, Freeciv-web, CrossCode, HexGL, Game Dev Tycoon,
+      BrowserQuest, Untrusted, A Dark Room, Polycraft, Sinuous.</td>
+    </tr>
+  </table>
+
+  <p>Heres a fun game I made with HTML:</p>
+
+  <div id="game-container">
+    <div id="play-screen">
+      <button id="play-button">PLAY</button>
+    </div>
+    <div id="score-overlay">Score: <span id="score">0</span></div>
+    <canvas id="game-canvas"></canvas>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas.getContext('2d');
+    const scoreEl = document.getElementById('score');
+    const playScreen = document.getElementById('play-screen');
+    const playButton = document.getElementById('play-button');
+
+    canvas.width = 600;
+    canvas.height = 400;
+
+    let score = 0;
+    let player = { x: 300, y: 200 };
+    let enemies = [];
+    let gameActive = false;
+
+    playButton.addEventListener('click', () => {
+      playScreen.style.display = 'none';
+      gameActive = true;
+      update();
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      player.x = e.clientX - rect.left;
+      player.y = e.clientY - rect.top;
+    });
+
+    function spawnEnemy() {
+      const size = Math.random() * 30 + 10;
+      enemies.push({
+        x: canvas.width,
+        y: Math.random() * (canvas.height - size),
+        size: size,
+        speed: Math.random() * 3 + 2 + (score / 10)
+      });
+    }
+
+    function update() {
+      if (!gameActive) return;
+      ctx.fillStyle = 'black';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = '#00ff00';
+      ctx.fillRect(player.x - 5, player.y - 5, 10, 10);
+
+      for (let i = enemies.length - 1; i >= 0; i--) {
+        let e = enemies[i];
+        e.x -= e.speed;
+        ctx.fillStyle = '#ff4444';
+        ctx.fillRect(e.x, e.y, e.size, e.size);
+
+        if (player.x < e.x + e.size && player.x > e.x &&
+            player.y < e.y + e.size && player.y > e.y) {
+          gameActive = false;
+          alert('Game Over! Score: ' + score);
+          location.reload();
+          return;
+        }
+
+        if (e.x + e.size < 0) {
+          enemies.splice(i, 1);
+          score++;
+          scoreEl.innerText = score;
+        }
+      }
+      if (Math.random() < 0.05) spawnEnemy();
+      requestAnimationFrame(update);
+    }
+  </script>
+<p>
+  Of course, I know this isn't the best example, but with some
+  modifications you can make it work:
+  This is the game code:
+</p>
+<label for="list"></label>
+<textarea id="list" name="list" rows="4" cols="92"></textarea>
+<p>
+  You ready now? Lets click "Start Project" to start editing the
+  code!
+  Also don't don't edit too complex code you dont understand:
+</p>
+<button id="startProjectBtn" type="button">Start Project</button>
+<script>
+  document.getElementById('startProjectBtn').addEventListener('click', () => {
+    window.location.href = './index.html';
+  });
+</script>
+</body>
+</html>

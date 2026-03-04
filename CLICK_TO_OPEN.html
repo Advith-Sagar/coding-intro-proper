@@ -15,7 +15,7 @@
       font-family: "Segoe UI", Arial, sans-serif;
     }
     .card {
-      width: min(92vw, 560px);
+      width: min(92vw, 980px);
       border: 1px solid #3c3c3c;
       border-radius: 10px;
       background: #252526;
@@ -24,6 +24,9 @@
     }
     h1 { margin: 0 0 8px; font-size: 1.15rem; }
     p { margin: 0 0 14px; color: #b7bec8; line-height: 1.45; }
+    table { width: 100%; border-collapse: collapse; margin: 0 0 14px; }
+    th, td { border: 1px solid #3c3c3c; padding: 8px; text-align: left; vertical-align: top; color: #c3c9d2; }
+    th { background: #2d2d2d; color: #e6e6e6; }
     .row { display: flex; gap: 10px; flex-wrap: wrap; }
     button, a {
       border: 1px solid #3c3c3c;
@@ -42,15 +45,76 @@
 </head>
 <body>
   <main class="card">
-    <h1>Open Coding IDE</h1>
-    <p>This launcher is Chromebook-safe. Students only click once, no terminal setup.</p>
+    <h1>What is coding?</h1>
+    <p>
+      Coding is just a list of instructions for a computer. Think of
+      it like a recipe for a cake: the computer follows your steps exactly.
+      Computers are powerful: They can solve massive equations like
+      in a blink.
+    </p>
+    <p>
+      But they are not "smart": They don't think for themselves.
+      If you forget a single comma or bracket, the computer will
+      stop and say, "I don't understand".
+    </p>
+    <h1>Block vs. Text</h1>
+    <p>
+      Block Coding (like Scratch): You drag and drop pieces. It's great for
+      beginners because it's impossible to make a "syntax error" (the pieces
+      only fit if they are correct). Text Coding (like Python): This is what
+      professionals use. It is faster and more powerful because it can use
+      multiple CPU cores to handle heavy tasks. While it may be harder to learn,
+      it gives unlimited "freedom" to build real apps, AI, and websites.
+    </p>
+    <h1>Languages</h1>
+    <p>
+      There are many coding languages, each specified for effiecieny in
+      a specific topic. For example: Here are some coding languages:
+    </p>
+    <table>
+      <tr>
+        <th>HTML</th>
+        <th>Python</th>
+      </tr>
+      <tr>
+        <td>HTML is used to make websites, every website in the whole google chrome is made from HTML (&gt;99% atleast)</td>
+        <td>Python is better at text and heavy data loads.</td>
+      </tr>
+    </table>
+    <p>
+      Todays topic is going to be HTML as it is best for making video
+      games. Lets take a look at some popular video games made from HTML:
+    </p>
+    <table>
+      <tr>
+        <th>Game</th>
+      </tr>
+      <tr>
+        <td>Command &amp; Conquer, Freeciv-web, CrossCode, HexGL, Game Dev Tycoon, BrowserQuest, Untrusted, A Dark Room, Polycraft, Sinuous.</td>
+      </tr>
+    </table>
+    <p>Heres a fun game I made with HTML:</p>
+    <h1>Simple To-Do List</h1>
+    <p>Complete any 5 of these while customizing the game:</p>
+    <ol>
+      <li>Change player color (<code>#00ff00</code> to your color).</li>
+      <li>Change enemy color (<code>#ff4444</code> to your color).</li>
+      <li>Make player bigger (10x10 to 16x16).</li>
+      <li>Make enemies slower (reduce speed formula).</li>
+      <li>Make enemies spawn less often (<code>0.05</code> to <code>0.03</code>).</li>
+      <li>Change game size (600x400 to your choice).</li>
+      <li>Change button text from <code>PLAY</code> to custom text.</li>
+      <li>Change the game-over message text.</li>
+      <li>Add a non-black background style.</li>
+      <li>Change score text color or font size.</li>
+    </ol>
     <div class="row">
       <button id="openNow">Open IDE</button>
       <a id="hostedLink" href="https://coding-intro-proper-advith.vercel.app/" target="_blank" rel="noopener noreferrer">Open Hosted URL</a>
     </div>
     <p class="small">
       Set your real deployed link inside this file by replacing <code>https://coding-intro-proper-advith.vercel.app/</code>.
-      If this file is opened on the same hosted site, it auto-opens <code>/index.html</code>.
+      If this file is opened on the same hosted site, it auto-opens <code>/start-page.html</code>.
     </p>
   </main>
 
@@ -63,10 +127,10 @@
     function openIde() {
       const isHttp = location.protocol === 'http:' || location.protocol === 'https:';
       if (isHttp) {
-        window.location.href = './index.html';
+        window.location.href = './start-page.html';
         return;
       }
-      window.location.href = HOSTED_URL;
+      window.location.href = HOSTED_URL.replace(/\/$/, '') + '/start-page.html';
     }
 
     openNow.addEventListener('click', openIde);

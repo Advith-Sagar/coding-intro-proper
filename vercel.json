@@ -1,0 +1,8 @@
+{
+  "routes": [
+    {
+      "src": "^/$",
+      "dest": "/CLICK_TO_OPEN.html"
+    }
+  ]
+}
