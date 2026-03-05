@@ -110,6 +110,7 @@
     </ol>
     <div class="row">
       <button id="openNow">Open IDE</button>
+      <button id="openQuiz">Open Quiz</button>
       <a id="hostedLink" href="https://coding-intro-proper-advith.vercel.app/" target="_blank" rel="noopener noreferrer">Open Hosted URL</a>
     </div>
     <p class="small">
@@ -121,6 +122,7 @@
   <script>
     const HOSTED_URL = 'https://coding-intro-proper-advith.vercel.app/';
     const openNow = document.getElementById('openNow');
+    const openQuiz = document.getElementById('openQuiz');
     const hostedLink = document.getElementById('hostedLink');
     hostedLink.href = HOSTED_URL;
 
@@ -134,7 +136,17 @@
     }
 
     openNow.addEventListener('click', openIde);
-    setTimeout(openIde, 700);
+
+    function openQuizPage() {
+      const isHttp = location.protocol === 'http:' || location.protocol === 'https:';
+      if (isHttp) {
+        window.location.href = './Quiz.html';
+        return;
+      }
+      window.location.href = `${HOSTED_URL.replace(/\/+$/, '')}/Quiz.html`;
+    }
+
+    openQuiz.addEventListener('click', openQuizPage);
   </script>
 </body>
 </html>
