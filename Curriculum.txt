@@ -1,0 +1,160 @@
+What is coding?
+Coding is just a list of instructions for a computer. Think of it like a recipe for a cake: the computer follows your steps exactly. Computers are powerful: They can solve massive equations like in a blink.
+But they are not "smart": They don't think for themselves. If you forget a single comma or bracket, the computer will stop and say, "I don't understand".
+Block vs. Text
+Block Coding (like Scratch): You drag and drop pieces. It's great for beginners because it's impossible to make a "syntax error" (the pieces only fit if they are correct). Text Coding (like Python): This is what professionals use. It is faster and more powerful because it can use multiple CPU cores to handle heavy tasks. While it may be harder to learn, it gives unlimited "freedom" to build real apps, AI, and websites.
+Languages
+There are many coding languages, each specified for efficiency in a specific topic. For example: Here are some coding languages:
+HTML
+Python
+HTML is used to make websites, every website in the whole google chrome is made from HTML (>99% atleast)
+Python is better at text and heavy data loads.
+
+Today's topic is going to be HTML as it is best for making video games. Let's take a look at some popular video games made from HTML:
+Game
+Command & Conquer, Freeciv-web, CrossCode, HexGL, Game Dev Tycoon, BrowserQuest, Untrusted, A Dark Room, Polycraft, Sinuous.
+
+Here's a fun game I made with HTML: 
+Of course, I know this isn't the best example, but with some modifications you can make it work: This is the game code:
+
+Are you ready now? Lets click "Start Project" to start editing the code! Also don't don't edit too complex code you don't understand.
+The Complete HTML Reference Guide
+HTML stands for HyperText Markup Language. It is the special code used to build websites. Think of it like a set of building blocks. Each block, called a tag, tells the computer where to put text, pictures, or links.
+The Basic Recipe
+Every web page needs a starting structure. It is like the foundation of a house. Without it, the browser will not know how to show your work correctly.
+First, we use <!DOCTYPE html>. This tells the computer that we are using modern HTML. It is a simple way to start every project. Don’t forget the “!” in front. And html is case-sensitive, at least for the most part.
+Next, we use the <html> tag. This is the biggest container (a container is something that contains text, image, scripts, functions and more). Everything else you write must go inside the opening <html> and the closing </html>.
+Something like this:
+<!DOCTYPE html>		Tells the browser what VERSION of html to use.
+  <html>			The biggest container, that contains all scripts, images, text and more.
+    <head>			Another container that's basically invisible but useful to store information.
+    </head>			The “closing” tag that tells the browser “This is the end of the <head> tag
+</html>			The “closing” tag that tells the browser “This is the end of the <html> tag
+Inside the html tags, we have a <head>. This is the "brain" of the page. It holds hidden information. For example, the <title> tag goes here. Whatever you type in the title tag shows up on the browser tab at the top of your screen.
+Finally, we have the <body>. This is the most important part for you. Everything you want people to see, like stories, photos, and buttons, must be placed inside the body tags.
+Example of the simple HTML code:
+<!DOCTYPE html>					Tells the browser what VERSION of html to use.
+<html>							The biggest container, that contains all info, 
+<head>						The “brain” of the code that is invisible but needed.
+    <title>My First Website</title>			The title of the HTML page (your website).
+</head>						The end of the Head and tells the computer it ends.
+<body>						The start of the body (all info…)
+    <p>Everything the user sees goes here!</p>	A paragraph text.
+</body>						Ending of body.
+</html>						Ending of the whole thing.
+
+Using Headings
+Headings are like titles in a book. They make your page easy to read. HTML has six different sizes for headings.
+The <h1> tag is the largest. It is usually used for the main title of your webpage. You should only use one <h1> per page so the computer knows what the main topic is.
+The <h2> tag is for smaller titles, like chapter names. If you have even smaller sections, you can use <h3>, <h4>, <h5>, and even <h6>.
+It is a good habit to use them in order. Do not jump from a big <h1> to a tiny <h5> just because you like the size. It is better to keep things organized.
+Example of Headings:
+<h1>The Great Space Adventure</h1>
+<h2>Chapter 1: The Launch</h2>
+<h3>Preparing the Rocket</h3>
+<h4>Checking the Fuel</h4>
+<h5>Safety First</h5>
+<h6>Smallest Detail</h6>
+
+Writing Paragraphs and Text
+The <p> tag is for normal text. Every time you want to start a new paragraph, you put your text inside <p> and </p>. The browser will automatically add a little space between paragraphs so they do not look squashed together.
+Sometimes you want to move to the next line without starting a whole new paragraph. For this, we use the <br> tag. It stands for "break." This tag is special because it does not need a closing tag.
+If you want to draw a line across the page to separate two ideas, use the <hr> tag. This stands for "horizontal rule." It creates a thin grey line that helps keep your page looking neat.
+Example of Paragraphs:
+<p>This is my first paragraph about my cat.</p>
+<p>This is my second paragraph.<br>I used a break to move to this line!</p>
+<hr>
+<p>Now the page is separated by a line.</p>
+
+Making Text Look Different
+To make a word look very important, use the <strong> tag. This usually makes the text look bold and dark. It tells the reader. Basically bold, but bold is <b> which requires a closing tag after the bold text (</b>)
+If you want to make text slanted, use the <em> tag. This stands for "emphasis." It makes the text look like italics.
+You can also use <u> to underline a word. This is helpful if you want to highlight a specific term, but be careful not to confuse it with a link!
+Example of Text Styles:
+<p>I <strong>really</strong> like coding!</p>
+<p>The <em>wind</em> whispered through the trees.</p>
+<p>Don't forget to <u>wash your hands</u> before dinner.</p>
+
+Making Lists
+Lists are great for organizing your favorite things. There are two main types of lists in HTML.
+An Unordered List uses the <ul> tag. This creates a list with bullet points (small dots). Use this when the order of the items does not matter, like a list of your favorite colors.
+An Ordered List uses the <ol> tag. This creates a list with numbers (1, 2, 3...). Use this when the order does matter, like the steps to make a peanut butter sandwich.
+For both types of lists, you must put each item inside an <li> tag. This stands for "list item." You can have as many list items as you want!
+Example of Lists:
+<h3>Grocery List (Unordered)</h3>
+<ul>
+    <li>Apples</li>
+    <li>Milk</li>
+    <li>Bread</li>
+</ul>
+
+<h3>How to Make Toast (Ordered)</h3>
+<ol>
+    <li>Put bread in toaster.</li>
+    <li>Press the lever down.</li>
+    <li>Wait for it to pop up.</li>
+</ol>
+
+Adding Links and Pictures
+The <a> tag is used to create a link. To tell the computer where the link goes, you add href="url" inside the tag. For example: <a href="https://www.nasa.gov">Visit Space!</a>.
+The <img> tag is used to show a picture. It needs a "source" to know which picture to show. You write this as src="image-link".
+Always add an alt="description" to your images. This is a short sentence describing the picture. If the picture doesn't load, or if someone cannot see well, the computer will read the "alt" text aloud.
+Example of Links and Images:
+<a href="[https://www.wikipedia.org](https://www.wikipedia.org)">Click here for facts!</a>
+
+<img src="[https://picsum.photos/200](https://picsum.photos/200)" alt="A cool random picture">
+
+Organizing Your Page
+The <div> tag is like an empty box. You can put other tags inside it to keep them together. It is very helpful for moving large chunks of your website around later.
+The <span> tag is a smaller box. It is used to grab just one or two words inside a paragraph so you can change their color or style without affecting the rest of the sentence.
+The <header> tag is for the very top of your site, where the logo usually sits. The <footer> tag is for the very bottom, where you might put your name and the date.
+Example of Organization:
+<header>
+    <h1>Welcome to My Blog</h1>
+</header>
+
+<div>
+    <h2>Today's Post</h2>
+    <p>I learned that <span style="color:blue">blue</span> is a cool color.</p>
+</div>
+
+<footer>
+    <p>Created by Me in 2024</p>
+</footer>
+
+📝 Practice Assignments
+Here are three big projects to test your skills. Try to finish every step!
+Assignment 1: The Ultimate Personal Profile Page
+This project is about creating a "Digital Identity" page that tells people who you are and what you enjoy.
+Step-by-Step Instructions:
+Structure: Create the full HTML structure (Doctype, HTML, Head, Title, Body).
+Introduction: Use an <h1> for your name and an <h2> for your "Title" (like "Aspiring Coder" or "Video Game Master").
+Biography: Write two paragraphs (<p>) about yourself. Use <strong> to bold your favorite subject and <em> to italicize your hometown.
+Media: Find a safe image online and use the <img> tag with a correct alt description to show it.
+Interests: Create an unordered list (<ul>) of 5 hobbies.
+Milestones: Create an ordered list (<ol>) of 3 things you have achieved this year.
+Footer: Add a <footer> with a horizontal rule <hr> and a link <a> to your school's website or a favorite educational site.
+Assignment 2: The Multi-Section "News Magazine"
+In this assignment, you will build a complex page layout that looks like an online magazine.
+Step-by-Step Instructions:
+Banner: Create a <header> section with a big title.
+Main Content Div: Create a <div> that holds the main news story.
+Inside the div, use an <h2> for a catchy headline.
+Write three paragraphs about a fictional event (like "Local Cat Wins Chess Tournament").
+Use a <br> between sentences in the second paragraph for styling.
+Sidebar Div: Create a second <div> for "Quick Facts."
+Use an <h3> title for this section.
+Use a <ul> list to list 4 quick facts about the story.
+Resources: Add a section at the bottom with three different links (<a>) to related news articles.
+Divider: Use <hr> between the main story and the sidebar.
+Assignment 3: The "How-To" Educational Guide
+This project tests your ability to explain a process using structured HTML.
+Step-by-Step Instructions:
+Topic Choice: Choose a process (like "How to Build a Paper Airplane" or "How to Solve a Rubik's Cube").
+Hero Section: Use an <h1> for the main title and an <img> that represents the topic.
+Warning Box: Use a <div> to create a "Safety Tips" box. Use <strong> to emphasize important safety rules.
+Tools Needed: Use an unordered list (<ul>) to show the materials needed for the task.
+Instructions: Use an ordered list (<ol>) for the steps. Each step must be inside an <li>. Use <span> to highlight the "action words" in each step.
+Conclusion: Write a final paragraph <p> encouraging the reader. Use <u> to underline the last sentence.
+Navigation: Add a link <a> that goes back to the top of your page (use href="#").
+

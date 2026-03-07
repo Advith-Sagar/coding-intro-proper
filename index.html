@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ChromeOS-Safe Multi-Language Web IDE</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1>Project Explorer</h1>
+        <button id="swapSidebarView" type="button" title="Switch between Explorer and Lessons">Show Lessons</button>
+      </div>
+      <p>Folders and files are saved in your browser.</p>
+
+      <section id="sidebarExplorerView" class="sidebar-view">
+        <div class="jdoodle-settings">
+          <h2>JDoodle API</h2>
+          <input id="jdoodleClientId" type="text" placeholder="Client ID" autocomplete="off" />
+          <input id="jdoodleClientSecret" type="password" placeholder="Client Secret" autocomplete="off" />
+          <button id="saveJdoodleButton" title="Save JDoodle credentials">Save API Keys</button>
+        </div>
+        <div class="jdoodle-settings">
+          <h2>OpenAI Hint API</h2>
+          <input id="openaiApiKey" type="password" placeholder="OpenAI API Key" autocomplete="off" />
+          <input id="openaiModel" type="text" placeholder="Model (default: gpt-4.1)" autocomplete="off" />
+          <button id="saveOpenaiButton" title="Save OpenAI settings">Save OpenAI</button>
+        </div>
+        <div class="explorer-actions">
+          <button id="newFolderButton" title="Add Folder">+ Folder</button>
+          <button id="newTextButton" title="Add Text/Markdown File">+ Text</button>
+          <button id="newCodeButton" title="Add Code File">+ Code</button>
+        </div>
+        <div id="explorerTree" class="explorer-tree" aria-label="File Explorer"></div>
+        <div class="explorer-footer">
+          <span id="activeFileLabel">No file open</span>
+        </div>
+      </section>
+
+      <section id="sidebarLessonView" class="sidebar-view hidden">
+        <div class="lesson-panel">
+          <h2 id="lessonTitle">Lesson 1: Dot Game Editor</h2>
+          <div class="lesson-selector">
+            <button id="lessonSelect1" type="button">Lesson 1</button>
+            <button id="lessonSelect2" type="button">Lesson 2 (Locked)</button>
+          </div>
+          <p id="lessonLockNote">Complete Lesson 1 to unlock Lesson 2.</p>
+          <p id="lessonTimer">Lesson 1 Timer: 25:00</p>
+          <p id="lessonStepLabel">Step 1 of 4</p>
+          <p id="lessonPrompt">Click "Load Starter", then complete the task in the IDE editor.</p>
+          <code id="lessonExpected"></code>
+          <div class="lesson-actions">
+            <button id="lessonLoadButton" type="button">Load Starter</button>
+            <button id="lessonCheckButton" type="button">Check IDE Code</button>
+            <button id="lessonHintButton" type="button">Get AI Hint</button>
+            <button id="lessonContinueButton" type="button" disabled>Continue</button>
+          </div>
+          <p id="lessonMessage">Continue is locked until your IDE code matches expected text.</p>
+        </div>
+      </section>
+    </aside>
+    <div id="sidebarSplitter" class="splitter vertical" aria-label="Resize Sidebar" title="Drag to resize sidebar"></div>
+
+    <main class="main">
+      <div class="toolbar">
+        <select id="languageSelect" class="native-language-select" aria-hidden="true" tabindex="-1">
+          <option value="javascript">JavaScript</option>
+          <option value="typescript">TypeScript</option>
+          <option value="html">HTML</option>
+          <option value="css">CSS</option>
+          <option value="json">JSON</option>
+          <option value="markdown">Markdown</option>
+          <option value="yaml">YAML</option>
+          <option value="xml">XML</option>
+          <option value="sql">SQL</option>
+          <option value="python">Python (Pyodide)</option>
+          <option value="lua">Lua (Fengari)</option>
+          <option value="ruby">Ruby (Opal)</option>
+          <option value="c">C (WASM scaffold)</option>
+          <option value="cpp">C++ (WASM scaffold)</option>
+          <option value="rust">Rust (WASM scaffold)</option>
+        </select>
+        <div id="languageDropdown" class="language-dropdown">
+          <button id="languageDropdownButton" class="language-dropdown-button" type="button" aria-haspopup="listbox" aria-expanded="false">
+            JavaScript
+          </button>
+          <div id="languageDropdownMenu" class="language-dropdown-menu hidden" role="listbox" aria-label="Language Selector"></div>
+        </div>
+        <button id="runButton" class="run" title="Run Code" aria-label="Run Code">▶</button>
+        <button id="debugButton" class="debug" title="Debug Project" aria-label="Debug Project">Debug</button>
+        <button id="clearButton">Clear Output</button>
+        <button id="settingsButton" class="settings" title="Settings" aria-label="Settings">Settings</button>
+        <div id="panelTabs" class="panel-tabs">
+          <button class="panel-tab" data-panel="output" type="button">Output</button>
+          <button class="panel-tab" data-panel="debug" type="button">Debug</button>
+          <button class="panel-tab" data-panel="terminal" type="button">Terminal</button>
+        </div>
+        <span id="status" class="status">Ready</span>
+      </div>
+
+      <section class="editor-wrap">
+        <div id="editor"></div>
+      </section>
+      <div id="editorOutputSplitter" class="splitter horizontal" aria-label="Resize Editor/Output" title="Drag to resize panels"></div>
+
+      <section class="output">
+        <h3>Output <button id="closeOutputPanel" class="panel-close" type="button" aria-label="Close Output">×</button></h3>
+        <pre id="output"></pre>
+      </section>
+      <div id="outputDebugSplitter" class="splitter horizontal" aria-label="Resize Output/Debug" title="Drag to resize panels"></div>
+
+      <section class="debug-panel">
+        <h3>Debug Tool <button id="closeDebugPanel" class="panel-close" type="button" aria-label="Close Debug">×</button></h3>
+        <pre id="debugOutput">Debug output will appear here.</pre>
+      </section>
+
+      <section class="terminal-panel">
+        <h3>Terminal <button id="closeTerminalPanel" class="panel-close" type="button" aria-label="Close Terminal">×</button></h3>
+        <pre id="terminalOutput"></pre>
+        <div class="terminal-input-row">
+          <span id="terminalPrompt" class="terminal-prompt">/ $</span>
+          <input id="terminalInput" type="text" autocomplete="off" spellcheck="false" placeholder="Type a command (help)" />
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="explorerContextMenu" class="explorer-context-menu hidden" role="menu" aria-label="Explorer Context Menu">
+    <button id="menuNewFolder" role="menuitem">New Folder</button>
+    <button id="menuNewText" role="menuitem">New Text File</button>
+    <button id="menuNewCode" role="menuitem">New Language File</button>
+    <button id="menuDelete" role="menuitem">Delete</button>
+  </div>
+
+  <div id="settingsOverlay" class="settings-overlay hidden" aria-hidden="true">
+    <section class="settings-window" role="dialog" aria-modal="true" aria-label="Settings">
+      <header class="settings-header">
+        <h2>Settings</h2>
+        <div class="settings-header-actions">
+          <input id="settingsSearch" type="text" placeholder="Search settings..." autocomplete="off" />
+          <button id="resetSettingsButton" type="button">Reset</button>
+          <button id="closeSettingsButton" type="button" aria-label="Close Settings">×</button>
+        </div>
+      </header>
+      <div class="settings-body">
+        <nav id="settingsCategoryList" class="settings-categories"></nav>
+        <div id="settingsContent" class="settings-content"></div>
+      </div>
+    </section>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.2/min/vs/loader.min.js"></script>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

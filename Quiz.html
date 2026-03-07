@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HTML Tag Master Challenge</title>
+<style>
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #222;
+    color: #ddd;
+    overflow-x: hidden;
+}
+
+#hud {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    font-weight: bold;
+    font-size: 1.4rem;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 15px 20px;
+    border-radius: 0 0 15px 15px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+}
+
+#game {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    padding-top: 120px; /* Space for fixed HUD */
+    box-sizing: border-box;
+}
+
+#question {
+    font-size: 2.2rem;
+    text-align: center;
+    max-width: 1000px;
+    line-height: 1.4;
+    margin-bottom: 40px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 25px;
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.5s ease-in;
+}
+
+.answers {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    width: 100%;
+    max-width: 1000px;
+    justify-items: center;
+}
+
+button {
+    padding: 30px 25px;
+    font-size: 1.6rem;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    color: #ddd;
+    background: rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    word-wrap: break-word;
+    font-weight: 500;
+    min-width: 300px;
+    width: 100%;
+    max-width: 450px;
+}
+
+button:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+#result {
+    font-size: 1.8rem;
+    margin-top: 30px;
+    min-height: 2em;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 15px 20px;
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.5s ease-in;
+    display: none;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+    #hud {
+        font-size: 1.2rem;
+        padding: 10px 15px;
+    }
+    #game {
+        padding-top: 100px;
+    }
+    #question {
+        font-size: 1.8rem;
+        padding: 20px;
+    }
+    button {
+        font-size: 1.1rem;
+        padding: 15px 10px;
+        min-width: 150px;
+    }
+}
+</style>
+</head>
+<body>
+<div id="hud">
+    <div id="xp">XP: 0</div>
+    <div id="level">Level: 1</div>
+</div>
+<div id="game">
+    <div id="question"></div>
+    <div class="answers" id="answers"></div>
+    <div id="result"></div>
+</div>
+
+<script>
+// All 29 HTML tag questions
+let questions=[
+{q:"Start of every modern HTML page", a:["<!DOCTYPE html>","<html>","<head>","<start>"], correct:"<!DOCTYPE html>"},
+{q:"Largest container for the webpage", a:["<body>","<html>","<div>","<main>"], correct:"<html>"},
+{q:"Invisible metadata container", a:["<body>","<head>","<title>","<meta>"], correct:"<head>"},
+{q:"Text shown in the browser tab", a:["<h1>","<title>","<head>","<tab>"], correct:"<title>"},
+{q:"Visible content of the site", a:["<html>","<body>","<page>","<div>"], correct:"<body>"},
+{q:"Largest heading", a:["<h1>","<h6>","<header>","<title>"], correct:"<h1>"},
+{q:"Second level heading", a:["<h2>","<h4>","<h6>","<p>"], correct:"<h2>"},
+{q:"Small heading often used for sections", a:["<h3>","<h1>","<p>","<header>"], correct:"<h3>"},
+{q:"Fourth level heading", a:["<h4>","<h2>","<h1>","<p>"], correct:"<h4>"},
+{q:"Fifth level heading", a:["<h5>","<h2>","<h3>","<h6>"], correct:"<h5>"},
+{q:"Smallest heading", a:["<h6>","<h5>","<h4>","<h3>"], correct:"<h6>"},
+{q:"Paragraph text", a:["<p>","<text>","<paragraph>","<span>"], correct:"<p>"},
+{q:"Line break", a:["<br>","<hr>","<break>","<lb>"], correct:"<br>"},
+{q:"Horizontal divider line", a:["<hr>","<line>","<div>","<br>"], correct:"<hr>"},
+{q:"Bold importance text", a:["<strong>","<b>","<em>","<bold>"], correct:"<strong>"},
+{q:"Basic bold text", a:["<strong>","<b>","<em>","<u>"], correct:"<b>"},
+{q:"Italic emphasis text", a:["<em>","<i>","<p>","<b>"], correct:"<em>"},
+{q:"Underline text", a:["<u>","<line>","<hr>","<strong>"], correct:"<u>"},
+{q:"Bullet list container", a:["<ul>","<ol>","<li>","<list>"], correct:"<ul>"},
+{q:"Numbered list container", a:["<ol>","<ul>","<li>","<numbers>"], correct:"<ol>"},
+{q:"List item", a:["<li>","<item>","<ul>","<point>"], correct:"<li>"},
+{q:"Clickable link tag", a:["<a>","<link>","<href>","<go>"], correct:"<a>"},
+{q:"Image tag", a:["<img>","<picture>","<photo>","<src>"], correct:"<img>"},
+{q:"Generic layout container", a:["<div>","<box>","<section>","<area>"], correct:"<div>"},
+{q:"Inline text container", a:["<span>","<div>","<p>","<inline>"], correct:"<span>"},
+{q:"Top section of webpage", a:["<header>","<head>","<top>","<nav>"], correct:"<header>"},
+{q:"Bottom section of webpage", a:["<footer>","<bottom>","<end>","<section>"], correct:"<footer>"},
+{q:"Section of content", a:["<section>","<div>","<article>","<span>"], correct:"<section>"},
+{q:"Article content container", a:["<article>","<div>","<section>","<body>"], correct:"<article>"}
+];
+
+let index=0;
+let xp=0;
+let level=1;
+
+// Escape HTML for display
+function escapeHTML(str){
+  return str.replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+// Load question
+function loadQuestion(){
+    if(index>=questions.length){
+        document.getElementById("question").innerText="🎉 You finished all questions!\nFinal XP: "+xp+" | Level "+level;
+        document.getElementById("answers").innerHTML="<div style='grid-column: 1 / -1; display: flex; justify-content: center;'><button onclick='restartQuiz()' style='background: rgba(0,255,0,0.3); padding: 30px 25px; font-size: 1.6rem; min-width: 300px; width: 100%; max-width: 450px;'>Restart Quiz</button></div>";
+        document.getElementById("result").innerText="";
+        return;
+    }
+    let q=questions[index];
+    document.getElementById("question").innerHTML=escapeHTML(q.q);
+
+    let html="";
+    q.a.forEach((choice,i)=>{
+        html+=`<button class="choice${i+1}" onclick="answer('${choice}')">${escapeHTML(choice)}</button>`;
+    });
+    document.getElementById("answers").innerHTML=html;
+}
+
+// Handle answer
+function answer(choice){
+    let correct=questions[index].correct;
+    if(choice===correct){
+        xp+=10;
+        document.getElementById("result").innerText="Correct! +10 XP";
+    } else {
+        document.getElementById("result").innerText="Wrong! Correct: "+escapeHTML(correct);
+    }
+
+    document.getElementById("result").style.display = "block";
+
+    level=Math.floor(xp/50)+1;
+    document.getElementById("xp").innerText="XP: "+xp;
+    document.getElementById("level").innerText="Level: "+level;
+
+    index++;
+    setTimeout(loadQuestion, 1500);
+}
+
+// Restart quiz
+function restartQuiz(){
+    index=0;
+    xp=0;
+    level=1;
+    document.getElementById("xp").innerText="XP: 0";
+    document.getElementById("level").innerText="Level: 1";
+    document.getElementById("result").innerText="";
+    document.getElementById("result").style.display = "none";
+    loadQuestion();
+}
+
+loadQuestion();
+</script>
+</body>
+</html>
